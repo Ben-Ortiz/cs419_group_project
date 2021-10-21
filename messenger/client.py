@@ -21,6 +21,8 @@ class Client:
 		try:
 			self.server.connect((self.IP, self.port))
 			print("Client connected to the server")
+			return True
+
 		except ConnectionRefusedError:
 			clear()
 			print("Client could not connect to server...")
@@ -28,6 +30,8 @@ class Client:
 				print("Connection Aborted")
 				exit(0)
 			print("\nAttempting reconnect...")
+
+			return False
 
 	
 	def query_server(self):
