@@ -9,8 +9,21 @@ if len(sys.argv) != 3:
 	print("Correct usage: script, IP address, port number")
 	exit() 
 IP = str(sys.argv[1]) 
-port = int(sys.argv[2]) 
-server.connect((IP, port)) 
+port = int(sys.argv[2])
+
+# Attempts to connect to server, if no connection, query user if the want to attempt to reconnect
+while True:
+	try:
+		server.connect((IP, port))
+		break
+	except ConnectionRefusedError:
+		print("Client could not connect to server...")
+		ask = input("Wait for connection? (y/n) > ")
+		if ask == "y":
+			pass
+		else:
+			print("")
+			exit(0)
 
 while True: 
 
