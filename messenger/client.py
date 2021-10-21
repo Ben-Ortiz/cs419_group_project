@@ -4,7 +4,7 @@ import socket
 import select
 import sys
 
-from support import clear
+from messenger.support import clear
 
 
 class Client:
@@ -13,7 +13,7 @@ class Client:
 		self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.IP = ip
 		self.port = port
-		self.sockets_list = [sys.stdin, self.server]
+		self.sockets_list = [self.server]
 
 
 	# Attempts to connect to server, if no connection, query user if the want to attempt to reconnect

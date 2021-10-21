@@ -6,7 +6,7 @@
 import socket 
 import select 
 import sys
-from threading import *
+from threading import Thread
 
 
 # checks whether sufficient arguments have been provided 
@@ -16,7 +16,18 @@ if len(sys.argv) != 3:
 
 # takes the first argument from command prompt as IP address,
 # takes second argument from command prompt as port number 
-ADDRESS, PORT = str(sys.argv[1]), int(sys.argv[2]) 
+ADDRESS, PORT = str(sys.argv[1]), int(sys.argv[2])
+
+
+class thread(Thread):
+    def __init__(self, name, ID):
+        Thread.__init__(self)
+        self.name = name
+        self.ID = ID
+ 
+    # helper function to execute the threads
+    def run(self):
+        print(str(self.name) +" "+ str(self.ID))
 
 
 class Server:
@@ -65,8 +76,36 @@ class Server:
         # prints the address of the user that just connected 
         print(addr[0] + " connected")
 
+        t = thread(server.execute, (conn, addr))
 
-    def clientthread(self, conn, addr): 
+        t.start()
+
+    
+    """Using the below function, we broadcast the message to all 
+    clients who's object is not the same as the one sending 
+    the message """
+    def broadcast(self, message, connection): 
+        for clients in self.clients: 
+            if clients != connection: 
+                try: 
+                    clients.send(message) 
+                except: 
+                    clients.close() 
+
+                    # if the link is broken, we remove the client 
+                    self.remove(clients) 
+
+
+    """The following function simply removes the object 
+    from the list that was created at the beginning of 
+    the program"""
+    def remove(self, conn): 
+        if conn in self.clients: 
+            self.clients.remove(conn) 
+
+
+
+    def execute(self, conn, addr): 
 
         # sends a message to the client whose user object is conn 
         conn.send("Welcome to this chatroom!") 
@@ -94,37 +133,9 @@ class Server:
                     continue
 
 
-    """Using the below function, we broadcast the message to all 
-    clients who's object is not the same as the one sending 
-    the message """
-    def broadcast(self, message, connection): 
-        for clients in self.clients: 
-            if clients != connection: 
-                try: 
-                    clients.send(message) 
-                except: 
-                    clients.close() 
-
-                    # if the link is broken, we remove the client 
-                    self.remove(clients) 
-
-
-    """The following function simply removes the object 
-    from the list that was created at the beginning of 
-    the program"""
-    def remove(self, conn): 
-        if conn in self.clients: 
-            self.clients.remove(conn) 
-
 
 
 server = Server(ADDRESS, PORT, 100)
 
 while True: 
-
-	# creates and individual thread for every user 
-	# that connects 
-	start_new_thread(server.clientthread,(conn,addr))	 
-
-conn.close() 
-server.close()
+	server.accept()
