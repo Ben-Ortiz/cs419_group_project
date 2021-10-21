@@ -19,7 +19,7 @@ class Client:
 	# Attempts to connect to server, if no connection, query user if the want to attempt to reconnect
 	def connect(self, reconnect=False):
 		try:
-			self.server.connect((IP, port))
+			self.server.connect((self.IP, self.port))
 			print("Client connected to the server")
 		except ConnectionRefusedError:
 			clear()
@@ -27,6 +27,7 @@ class Client:
 			if not reconnect:
 				print("Connection Aborted")
 				exit(0)
+			print("\nAttempting reconnect...")
 
 	
 	def query_server(self):

@@ -1,12 +1,9 @@
-from tkinter import *
+import sys
 
-root = Tk()
-root.title("Messenger App")
-root.geometry("400x400")
 
-vertical = Scale(root, from_=0, to=200)
-vertical.pack(side=RIGHT)
 
-vertical.get()
-
-root.mainloop()
+if len(sys.argv) != 3: 
+	print("Correct usage: script, IP address, port number")
+	exit() 
+IP = str(sys.argv[1]) 
+port = int(sys.argv[2])
