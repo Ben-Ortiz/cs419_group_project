@@ -29,7 +29,6 @@ class Client:
 			if not reconnect:
 				print("Connection Aborted")
 				exit(0)
-			print("\nAttempting reconnect...")
 
 			return False
 

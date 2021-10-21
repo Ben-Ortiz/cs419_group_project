@@ -1,4 +1,5 @@
 import sys
+from messenger import client
 from messenger.client import Client
 
 
@@ -11,11 +12,19 @@ port = int(sys.argv[2])
 c = Client(IP, port)
 
 r = True
-connected = c.connect(r)
-while not connected:
-    if r:
-        r = input("Do you want to attempt reconnect? (y/n) > ") == "y"
+while r:
     connected = c.connect(r)
+    if connected:
+        break
+    r = input("Do you want to attempt reconnect? (y/n) > ") == "y"
+
+
+while True:
+    c.query_server()
+
+c.close()
+
+    
     
     
 
