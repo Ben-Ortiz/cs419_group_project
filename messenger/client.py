@@ -31,7 +31,6 @@ while True:
 		print("\nAttempting reconnect...")
 
 while True: 
-
 	# maintains a list of possible input streams 
 	sockets_list = [sys.stdin, server] 
 
