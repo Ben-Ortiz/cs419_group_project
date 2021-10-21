@@ -1,8 +1,10 @@
 #Client Script
 # Python program to implement client side of chat room. 
-import socket 
-import select 
-import sys 
+import socket
+import select
+import sys
+
+from support import clear
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
 if len(sys.argv) != 3: 
