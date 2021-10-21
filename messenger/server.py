@@ -99,7 +99,7 @@ class Server:
     the message """
     def broadcast(self, message, connection): 
         for clients in self.clients: 
-            if clients!=connection: 
+            if clients != connection: 
                 try: 
                     clients.send(message) 
                 except: 
@@ -124,7 +124,7 @@ while True:
 
 	# creates and individual thread for every user 
 	# that connects 
-	start_new_thread(clientthread,(conn,addr))	 
+	start_new_thread(server.clientthread,(conn,addr))	 
 
 conn.close() 
 server.close()

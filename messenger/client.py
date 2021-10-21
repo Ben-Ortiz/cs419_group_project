@@ -8,9 +8,9 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 if len(sys.argv) != 3: 
 	print("Correct usage: script, IP address, port number")
 	exit() 
-IP_address = str(sys.argv[1]) 
-Port = int(sys.argv[2]) 
-server.connect((IP_address, Port)) 
+IP = str(sys.argv[1]) 
+port = int(sys.argv[2]) 
+server.connect((IP, port)) 
 
 while True: 
 
@@ -25,11 +25,11 @@ while True:
 	to send a message, then the if condition will hold true 
 	below.If the user wants to send a message, the else 
 	condition will evaluate as true"""
-	read_sockets,write_socket, error_socket = select.select(sockets_list,[],[]) 
+	read, write, err = select.select(sockets_list, [], []) 
 
-	for socks in read_sockets: 
-		if socks == server: 
-			message = socks.recv(2048) 
+	for s in read: 
+		if s == server: 
+			message = s.recv(2048) 
 			print(message)
 		else: 
 			message = sys.stdin.readline() 
