@@ -137,5 +137,9 @@ class Server:
 
 server = Server(ADDRESS, PORT, 100)
 
-while True: 
-	server.accept()
+while True:
+    try:
+	    server.accept()
+    except KeyboardInterrupt:
+        break
+server.server.close()
