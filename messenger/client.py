@@ -17,15 +17,18 @@ port = int(sys.argv[2])
 while True:
 	try:
 		server.connect((IP, port))
+		print("Client connected to the server")
 		break
 	except ConnectionRefusedError:
+		clear()
 		print("Client could not connect to server...")
 		ask = input("Wait for connection? (y/n) > ")
 		if ask == "y":
 			pass
 		else:
-			print("")
+			print("Connection Aborted")
 			exit(0)
+		print("\nAttempting reconnect...")
 
 while True: 
 
