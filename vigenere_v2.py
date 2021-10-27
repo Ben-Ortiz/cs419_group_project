@@ -65,17 +65,17 @@ def encrypt(m, k, insert_chars):
     for x in m_list:
         new_c_val = (x + k_list[k_idx]) % len(PRINTABLE_CHARS)      #calculate new ciphertext value
         c_list.append(new_c_val)
-        k_idx = (k_idx + 1) % k_len         #update location in key, us mod so if msg longer than key we loop back
-
-    #compute and insert check sum
-    c_sum = compute_check_sum(m_list)
-    c_list.append(c_sum)                   
+        k_idx = (k_idx + 1) % k_len         #update location in key, us mod so if msg longer than key we loop back                   
 
     #map value list back to string
     ct = map_num_to_str(c_list)
 
     if insert_chars:
         ct = insert_rand_chars(ct)                              #make every other character a random letter
+
+    #compute and insert check sum
+    c_sum = compute_check_sum(m_list)
+    ct += PRINTABLE_CHARS[c_sum]
 
     return ct
 
@@ -86,6 +86,8 @@ def decrypt(m, keys, insert_chars):
     #get the checksum and remove checksome from ciphertext
     c_sum = get_check_sum(m)
     ct = m[:len(m) - 1]
+    if insert_chars:
+        ct = strip_rand_chars(m)      #remove every other character as we know they are garbage
 
     #need to decrypt for each key in list till the checksums match
     for k in keys:
@@ -95,9 +97,6 @@ def decrypt(m, keys, insert_chars):
         new_c_val = 0           
         k_len = len(k)
         msg = ''
-
-        if insert_chars:
-            ct = strip_rand_chars(m)      #remove every other character as we know they are garbage
 
         m_list = map_str_to_num(ct)
         k_list = map_str_to_num(k)
@@ -132,12 +131,11 @@ def get_rand_key(n):
 #make every other character in a string a random character
 def insert_rand_chars(m):
 
-    m_list = list(m)
     new_list = []
     new_m = ""
 
     for c in m:
-        new_char = random.choice(string.ascii_lowercase)
+        new_char = random.choice(string.printable)
         new_list.append(c + new_char)
 
     new_m = ''.join(new_list)
@@ -162,8 +160,8 @@ def main():
         key_list = [get_rand_key(n), get_rand_key(n)]
 
         m = 'hello my name is josh'
-        ct = encrypt(m, key_list, False)
-        pt = decrypt(ct, key_list, False)
+        ct = encrypt(m, key_list, True)
+        pt = decrypt(ct, key_list, True)
 
         print(f'| Message: {m} |\n| Ciphertext: {ct} |\n| Plaintext: {pt} |')
 
