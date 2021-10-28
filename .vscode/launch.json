@@ -1,0 +1,24 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "server",
+            "type": "python",
+            "request": "launch",
+            "program": "messenger/server.py",
+            "console": "integratedTerminal",
+            "args": ["10.0.0.63","8888"]
+        },
+        {
+            "name": "app",
+            "type": "python",
+            "request": "launch",
+            "program": "app.py",
+            "console": "integratedTerminal",
+            "args": ["10.0.0.63","8888"]
+        }
+    ]
+}
