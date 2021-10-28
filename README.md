@@ -9,4 +9,3 @@ What we need to do (according to slides):
 - [ ] Final Report: Due final week of semester  
   
 Note: Code freeze and presentation will be announced after midterm report
-
