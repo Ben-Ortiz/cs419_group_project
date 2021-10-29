@@ -12,7 +12,7 @@ from threading import Thread
 # checks whether sufficient arguments have been provided 
 if len(sys.argv) != 3: 
 	print("Correct usage: script, IP address, port number")
-	exit() 
+	exit()
 
 # takes the first argument from command prompt as IP address,
 # takes second argument from command prompt as port number 
@@ -47,6 +47,7 @@ class Server:
         self.listeners = num_listeners
 
         self.clients = []
+        self.threads = []
 
         """ 
         binds the server to an entered IP address and at the 
@@ -76,8 +77,8 @@ class Server:
         # prints the address of the user that just connected 
         print(addr[0] + " connected")
 
-        t = thread(server.execute, (conn, addr))
-
+        t = thread(self.execute, (conn, addr))
+        self.threads.append(t)
         t.start()
 
     
@@ -111,26 +112,27 @@ class Server:
         conn.send("Welcome to this chatroom!") 
 
         while True: 
-                try: 
-                    message = conn.recv(2048) 
-                    if message: 
+            try: 
+                message = conn.recv(2048)
+                print(message)
+                if message: 
 
-                        """prints the message and address of the 
-                        user who just sent the message on the server 
-                        terminal"""
-                        print("<" + addr[0] + "> " + message )
+                    """prints the message and address of the 
+                    user who just sent the message on the server 
+                    terminal"""
+                    print("<" + addr[0] + "> " + message )
 
-                        # Calls broadcast function to send message to all 
-                        message_to_send = "<" + addr[0] + "> " + message 
-                        self.broadcast(message_to_send, conn) 
+                    # Calls broadcast function to send message to all 
+                    message_to_send = "<" + addr[0] + "> " + message 
+                    self.broadcast(message_to_send, conn) 
 
-                    else: 
-                        """message may have no content if the connection 
-                        is broken, in this case we remove the connection"""
-                        self.remove(conn) 
+                else: 
+                    """message may have no content if the connection 
+                    is broken, in this case we remove the connection"""
+                    self.remove(conn) 
 
-                except: 
-                    continue
+            except:
+                continue
 
 
 

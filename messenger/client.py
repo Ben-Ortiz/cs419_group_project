@@ -4,8 +4,21 @@ import socket
 import select
 import sys
 
+import json
+
 from messenger.support import clear
 
+from threading import Thread
+
+class thread(Thread):
+    def __init__(self, name, ID):
+        Thread.__init__(self)
+        self.name = name
+        self.ID = ID
+ 
+    # helper function to execute the threads
+    def run(self):
+        print(str(self.name) +" "+ str(self.ID))
 
 class Client:
 
@@ -15,12 +28,16 @@ class Client:
 		self.port = port
 		self.sockets_list = [self.server]
 
+		# 
 
 	# Attempts to connect to server, if no connection, query user if the want to attempt to reconnect
 	def connect(self, reconnect=False):
 		try:
 			self.server.connect((self.IP, self.port))
 			print("Client connected to the server")
+			t = thread(self.wait_for_response, 0)
+			t.start()			
+
 			return True
 
 		except ConnectionRefusedError:
@@ -31,6 +48,16 @@ class Client:
 				exit(0)
 
 			return False
+
+	
+	def wait_for_response(self):
+		while True:
+			msg = self.server.recv(16)
+			print(msg)
+
+
+	def send(self, msg):
+		self.server.send(bytes("test", "utf-8"))
 
 	
 	def query_server(self):
