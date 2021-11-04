@@ -24,8 +24,8 @@ class App:
          # This is to make my life easier
         packet = {
             "user": "Anthony",
-            "ip"  : "192.168.1.7",
-            "port": 8080
+            "ip"  : "10.0.0.22",
+            "port": 9008
         }
 
         """
