@@ -4,7 +4,7 @@
 What we need to do (according to slides):  
 - [x] Project Topic: Due 9/23/2021 11:59pm  
 - [x] Midterm Report: Due 10/28/2021 11:59pm    
-- [ ] Code Freeze: one week before presentation  
+- [ ] Code Freeze: Due 11/21/2021    
 - [ ] Presentation: Due last few weeks  
 - [ ] Final Report: Due final week of semester  
   
