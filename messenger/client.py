@@ -23,17 +23,16 @@ class thread(Thread):
 class Client:
 
 	def __init__(self, ip, port) -> None:
-		self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.IP = ip
 		self.port = port
-		self.sockets_list = [self.server]
+		self.sockets_list = [self.s]
 
-		# 
 
-	# Attempts to connect to server, if no connection, query user if the want to attempt to reconnect
-	def connect(self, reconnect=False):
+	def connect_to_server(self, reconnect=False):
+		"""Attempts to connect to server, if no connection, query user if the want to attempt to reconnect"""
 		try:
-			self.server.connect((self.IP, self.port))
+			self.s.connect((self.IP, self.port))
 			print("Client connected to the server")
 			t = thread(self.wait_for_response, 0)
 			t.start()			
@@ -57,24 +56,24 @@ class Client:
 
 
 	def send(self, msg):
-		self.server.send(bytes("test", "utf-8"))
+		self.s.send(bytes("test", "utf-8"))
 
 	
 	def query_server(self):
 		read, write, err = select.select(self.sockets_list, [], [])
 
 		for s in read: 
-			if s == self.server: 
+			if s == self.s: 
 				message = s.recv(2048) 
 				print(message)
 			else: 
 				message = sys.stdin.readline() 
-				self.server.send(message) 
+				self.s.send(message) 
 				sys.stdout.write("<You>") 
 				sys.stdout.write(message) 
 				sys.stdout.flush()
 
 
 	def close(self):
-		self.server.close() 
+		self.s.close() 
 

@@ -4,6 +4,8 @@ from messenger.client import Client
 
 import tkinter
 import tkinter.messagebox as messagebox
+
+import csv
  
 
 
@@ -21,26 +23,16 @@ class App:
 
     def connect(self):
 
-         # This is to make my life easier
-        packet = {
-            "user": "Anthony",
-            "ip"  : "10.0.0.22",
-            "port": 9008
-        }
-
-        """
-        # This is the actual code
         packet = {
             "user": self.login_screen["user"]["entry"].get(),
             "ip"  : self.login_screen["ip"]["entry"].get(),
             "port": self.login_screen["port"]["entry"].get()
         }
-        """
 
         # Attempt to connect to server
         try:
             self.client = Client(packet["ip"], int(packet["port"]))
-            connection = self.client.connect(reconnect=True)
+            connection = self.client.connect_to_server(reconnect=True)
 
         except ValueError as e:
             messagebox.showinfo("Error", e)
@@ -53,7 +45,13 @@ class App:
             return
 
         # Check uniqueness of username
-
+        with open('data/accounts.csv') as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            line_count = 0
+            for row in csv_reader:
+                if row[0] == packet["user"]:
+                    print(f'Username found')
+                    break
 
         # Change scene
         self.login_screen["user"]["entry"].delete(0, END)
@@ -67,6 +65,8 @@ class App:
 
 
     def test(self):
+        print(f'test')
+        self.client.wait_for_response
         self.client.send("test message")
 
 
@@ -80,7 +80,7 @@ class App:
         self.login_screen = {
             "frame":frame
         }
-
+        
         for i in range(len(names)):
             widget = {}
             widget["lbl"] = tkinter.Label(frame, text=texts[i])

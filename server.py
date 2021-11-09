@@ -19,17 +19,6 @@ if len(sys.argv) != 3:
 ADDRESS, PORT = str(sys.argv[1]), int(sys.argv[2])
 
 
-class thread(Thread):
-    def __init__(self, name, ID):
-        Thread.__init__(self)
-        self.name = name
-        self.ID = ID
- 
-    # helper function to execute the threads
-    def run(self):
-        print(str(self.name) +" "+ str(self.ID))
-
-
 class Server:
     
     def __init__(self, IP, Port, num_listeners):
@@ -55,6 +44,8 @@ class Server:
         The client must be aware of these parameters 
         """
         self.server.bind((IP, Port))
+        print("Server started")
+        print("Waiting for client request..")
 
         """ 
         listens for active connections. This number can be 
@@ -64,6 +55,7 @@ class Server:
 
 
     def accept(self):
+        print(f'accepting')
         """Accepts a connection request and stores two parameters, 
         conn which is a socket object for that user, and addr 
         which contains the IP address of the client that just 
@@ -77,7 +69,8 @@ class Server:
         # prints the address of the user that just connected 
         print(addr[0] + " connected")
 
-        t = thread(self.execute, (conn, addr))
+        t = Thread(target=self.execute, args=(conn, addr))
+        # t = thread(conn, addr)
         self.threads.append(t)
         t.start()
 
@@ -86,6 +79,7 @@ class Server:
     clients who's object is not the same as the one sending 
     the message """
     def broadcast(self, message, connection): 
+        print(f'Broadcasting')
         for clients in self.clients: 
             if clients != connection: 
                 try: 
@@ -107,9 +101,9 @@ class Server:
 
 
     def execute(self, conn, addr): 
-
+        print(f'executing')
         # sends a message to the client whose user object is conn 
-        conn.send("Welcome to this chatroom!") 
+        conn.send(bytes("Welcome to this chatroom!", 'utf-8')) 
 
         while True: 
             try: 
@@ -129,7 +123,9 @@ class Server:
                 else: 
                     """message may have no content if the connection 
                     is broken, in this case we remove the connection"""
-                    self.remove(conn) 
+                    # self.remove(conn)
+                    self.server.close()
+                    self.clients.remove(conn)
 
             except:
                 continue
@@ -137,7 +133,7 @@ class Server:
 
 
 
-server = Server(ADDRESS, PORT, 100)
+server = Server(ADDRESS, PORT, 1)
 
 while True:
     try:
