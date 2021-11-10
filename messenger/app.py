@@ -5,6 +5,7 @@ import tkinter
 import tkinter.messagebox as messagebox
 import json
 import csv
+from threading import Thread
  
 
 
@@ -96,6 +97,16 @@ class App:
 
         #TODO load new messages from messages.csv
 
+        print(f'home')
+
+        # Thread to recieve any incoming messages
+        # This might not need to be threaded
+        
+        # Also I'm not sure why this is crashing the program, I know it's because recieve_msg() has an infinite loop
+        # but idk why that would be a problem since it's in a seperate thread? Idk I'm going to sleep
+        t = Thread(target=self.client.recieve_msg(), args=())
+        t.start()
+
         names = []
         texts = []
 
@@ -123,9 +134,6 @@ class App:
         self.home_screen["submit"] = widget
 
         frame.pack()
-
-        # Thread a loop to recieve any incoming messages
-        
         
 
     def message_user(self):

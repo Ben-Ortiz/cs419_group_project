@@ -72,10 +72,10 @@ class Client:
 		# maybe include length of package in the beginning and/or don't use json (idk I haven't thought about it that much yet)
 		while(True):
 
-			j = self.c.recv(2048)
+			data = self.c.recv(2048)
 			# Get a json string
-			k = json.dumps(j)
-			print(k)
+			j = data.decode("utf-8")
+			print(j)
 
 			#TODO parse json string and get relevant information (sender, recipient, etc)
 			
@@ -93,7 +93,7 @@ class Client:
 			else:
 				#TODO alert user and show message in GUI
 				break
-			
+
 	
 	def query_server(self):
 		read, write, err = select.select(self.sockets_list, [], [])
