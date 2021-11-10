@@ -1,12 +1,8 @@
-# NOTE: This is just a copy and pasted script, not confirmed to work nor is the functionality complete
-# TODO: Review and parse code
-
-
-#Server Script
 import socket 
 import select 
 import sys
 from threading import Thread
+
 
 
 # checks whether sufficient arguments have been provided 
@@ -19,21 +15,22 @@ if len(sys.argv) != 3:
 ADDRESS, PORT = str(sys.argv[1]), int(sys.argv[2])
 
 
+
 class Server:
     
-    def __init__(self, IP, Port, num_listeners):
+    def __init__(self, IP, Port):
 
         """The first argument AF_INET is the address domain of the 
         socket. This is used when we have an Internet Domain with 
         any two hosts The second argument is the type of socket. 
         SOCK_STREAM means that data or characters are read in 
         a continuous flow."""
+
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
         self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         self.IP = IP
         self.Port = Port
-        self.listeners = num_listeners
 
         self.clients = []
         self.threads = []
@@ -45,99 +42,53 @@ class Server:
         """
         self.server.bind((IP, Port))
         print("Server started")
-        print("Waiting for client request..")
 
         """ 
         listens for active connections. This number can be 
         increased as per convenience. 
         """
-        self.server.listen(num_listeners)
+        self.server.listen(1)
 
 
-    def accept(self):
-        print(f'accepting')
-        """Accepts a connection request and stores two parameters, 
-        conn which is a socket object for that user, and addr 
-        which contains the IP address of the client that just 
-        connected"""
-        conn, addr = self.server.accept()
+    def accept_client(self):
 
-        """Maintains a list of clients for ease of broadcasting 
-        a message to all available people in the chatroom"""
-        self.clients.append(conn)
+        """Accepts a connection request and stores two parameters: 
+        client_sock, a socket object for the client that connected, and client_addr, 
+        which contains the IP address of that client"""
+
+        print("Waiting for client request..")
+
+        client_sock, client_addr = self.server.accept()
+
+        # List of clients
+        self.clients.append(client_sock)
 
         # prints the address of the user that just connected 
-        print(addr[0] + " connected")
+        print(client_addr[0] + " connected")
 
-        t = Thread(target=self.execute, args=(conn, addr))
-        # t = thread(conn, addr)
-        self.threads.append(t)
+        # Begin new thread
+        t = Thread(target=self.recieve_from, args=(client_sock, client_addr))
         t.start()
 
-    
-    """Using the below function, we broadcast the message to all 
-    clients who's object is not the same as the one sending 
-    the message """
-    def broadcast(self, message, connection): 
-        print(f'Broadcasting')
-        for clients in self.clients: 
-            if clients != connection: 
-                try: 
-                    clients.send(message) 
-                except: 
-                    clients.close() 
 
-                    # if the link is broken, we remove the client 
-                    self.remove(clients) 
+    def recieve_from(self, client_sock, client_addr):
+
+        """Recieves outgoing messages from users and sends them to the correct recipient"""
+
+        #TODO idk
 
 
-    """The following function simply removes the object 
-    from the list that was created at the beginning of 
-    the program"""
-    def remove(self, conn): 
-        if conn in self.clients: 
-            self.clients.remove(conn) 
+    def send_to():
+
+        
 
 
-
-    def execute(self, conn, addr): 
-        print(f'executing')
-        # sends a message to the client whose user object is conn 
-        conn.send(bytes("Welcome to this chatroom!", 'utf-8')) 
-
-        while True: 
-            try: 
-                message = conn.recv(2048)
-                print(message)
-                if message: 
-
-                    """prints the message and address of the 
-                    user who just sent the message on the server 
-                    terminal"""
-                    print("<" + addr[0] + "> " + message )
-
-                    # Calls broadcast function to send message to all 
-                    message_to_send = "<" + addr[0] + "> " + message 
-                    self.broadcast(message_to_send, conn) 
-
-                else: 
-                    """message may have no content if the connection 
-                    is broken, in this case we remove the connection"""
-                    # self.remove(conn)
-                    self.server.close()
-                    self.clients.remove(conn)
-
-            except:
-                continue
-
-
-
-
-server = Server(ADDRESS, PORT, 1)
+s = Server(ADDRESS, PORT)
 
 while True:
     try:
-	    server.accept()
+        s.server.listen(1)
+        s.accept_client()
     except KeyboardInterrupt:
         break
-server.server.close()
+s.server.close()

@@ -1,15 +1,13 @@
 import sys
 from tkinter.constants import END
 from messenger.client import Client
-
 import tkinter
 import tkinter.messagebox as messagebox
-
 import csv
 
 class Home:
 
-    def home(self):
+    def __init__(self):
         names = []
         texts = []
 

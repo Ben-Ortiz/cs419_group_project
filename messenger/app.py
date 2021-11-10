@@ -31,7 +31,7 @@ class App:
 
         # Attempt to connect to server
         try:
-            self.client = Client(packet["ip"], int(packet["port"]))
+            self.client = Client(packet["user"], packet["ip"], int(packet["port"]))
             connection = self.client.connect_to_server(reconnect=True)
 
         except ValueError as e:
@@ -64,12 +64,6 @@ class App:
         self.home()
 
 
-    def test(self):
-        print(f'test')
-        self.client.wait_for_response
-        self.client.send("test message")
-
-
     def login(self):
 
         names = ["user", "ip", "port"]
@@ -100,6 +94,9 @@ class App:
 
 
     def home(self):
+
+        #TODO load new messages from messages.csv
+
         names = []
         texts = []
 
@@ -122,9 +119,25 @@ class App:
             self.home_screen[names[i]] = widget           
         
         widget = {}
-        widget["bttn"] = tkinter.Button(frame, text="Test Function", command=self.test)
+        widget["bttn"] = tkinter.Button(frame, text="Send Message to Anthony", command=self.message_user)
         widget["bttn"].grid(row=6, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
         self.home_screen["submit"] = widget
 
         frame.pack()
+
+
+    def message_user(self):
+        #TODO message a specific user using the GUI
+        #TODO create (in the GUI) a list of users to message, which
+        # would make the check_for_user method obsolete
+        #TODO create message in the GUI
+
+        if(self.check_for_user("Anthony")):
+            self.client.send_msg("Anthony", "test message")
+
     
+    def check_for_user(self, user):
+
+        """Checks database to see if account exists"""
+
+        return True

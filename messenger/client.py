@@ -1,41 +1,35 @@
-#Client Script
-# Python program to implement client side of chat room. 
 import socket
 import select
 import sys
-
+import csv
 import json
-
 from messenger.support import clear
-
 from threading import Thread
 
-class thread(Thread):
-    def __init__(self, name, ID):
-        Thread.__init__(self)
-        self.name = name
-        self.ID = ID
- 
-    # helper function to execute the threads
-    def run(self):
-        print(str(self.name) +" "+ str(self.ID))
 
 class Client:
 
-	def __init__(self, ip, port) -> None:
-		self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	def __init__(self, username, ip, port) -> None:
+		self.c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.username = username
 		self.IP = ip
 		self.port = port
-		self.sockets_list = [self.s]
+		self.sockets_list = [self.server]
 
 
 	def connect_to_server(self, reconnect=False):
-		"""Attempts to connect to server, if no connection, query user if the want to attempt to reconnect"""
+
+		"""
+		Attempts to connect to server
+		
+		If no connection, query user if the want to attempt to reconnect
+		"""
+
+		#NOTE I haven't really looked at the reconnect stuff yet
+
 		try:
-			self.s.connect((self.IP, self.port))
-			print("Client connected to the server")
-			t = thread(self.wait_for_response, 0)
-			t.start()			
+			self.server.connect((self.IP, self.port))
+			print("Client connected to the server")		
 
 			return True
 
@@ -48,32 +42,54 @@ class Client:
 
 			return False
 
-	
-	def wait_for_response(self):
-		while True:
-			msg = self.server.recv(16)
-			print(msg)
+
+	def send_msg(self, user, msg):
+
+		"""
+		Sends message to spefied user
+		
+		Pings server to see if user is online. If so, it sends the message directly to them.
+		If not, it stores the message in messages.csv
+		"""
+
+		#TODO check if user is online
+
+		if(user_is_online()):
+			# create json package which includes the sender, the recipient and the message
+			j = {
+				"sender": self.username,
+				"recpt": user,
+				"message": msg
+			}
+			self.c.sendall(j)
+		else:
+			# Store message in messages.csv
+			with open('data/messages.csv', 'a') as msg_file:
+			csv_writer = csv.writer(msg_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+			csv_writer.writerow([user, self.username, msg])
 
 
-	def send(self, msg):
-		self.s.send(bytes("test", "utf-8"))
+	def user_is_online(self, user):
+
+		"""
+		Checks whether or not a user is online
+		"""
+		# This might not need to be its own method
+
+		# placeholder return value
+		return True
 
 	
 	def query_server(self):
 		read, write, err = select.select(self.sockets_list, [], [])
 
 		for s in read: 
-			if s == self.s: 
+			if s == self.server: 
 				message = s.recv(2048) 
 				print(message)
 			else: 
 				message = sys.stdin.readline() 
-				self.s.send(message) 
+				self.server.send(message) 
 				sys.stdout.write("<You>") 
 				sys.stdout.write(message) 
 				sys.stdout.flush()
-
-
-	def close(self):
-		self.s.close() 
-

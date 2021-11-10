@@ -1,17 +1,15 @@
 import sys
 from tkinter.constants import END
 from messenger.client import Client
-
 import tkinter
 import tkinter.messagebox as messagebox
-
 import csv
 
 
 
 class Login:    
     
-    def login(self):
+    def __init__(self):
 
         names = ["user", "ip", "port"]
         texts = ["Username:", "IP Address:", "Port:"]
