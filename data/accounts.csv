@@ -1,3 +1,3 @@
-username,password
-Josh,password
-Anthony,123
+username,password,num_sent
+Josh,password,0
+Anthony,123,0

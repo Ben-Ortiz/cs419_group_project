@@ -1,29 +1,70 @@
 import socket
-import time
-import json
+import select
+
 
 
 HEADER_SIZE = 10
+IP = "192.168.1.7"
+PORT = 1243
 
 
-if __name__ == "__main__":
-    ip = "192.168.1.7"
-    port = 1243
+def recieve_message(client_socket):
+    try:
+        message_header = client_socket.recv(HEADER_SIZE)
 
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind((ip, port))
-    server.listen(5)
+        if not len(message_header):
+            return False
+
+        message_length = int(message_header.decode("utf-8").strip())
+
+        return {"header": message_header, "data": client_socket.recv(message_length)}
+
+    except:
+        return False
+
+
+if __name__ == "__main__":  
+
+    # Server Initialization
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    
+    server_socket.bind((IP, PORT))
+    server_socket.listen()
+
+    sockets_list = [server_socket]
+    clients = {}
+
 
     while True:
-        client, address = server.accept()
-        print(f"Connection Established - {address[0]}:{address[1]}")
+        read, _, err = select.select(sockets_list, [], sockets_list)
 
-        d = {1: 2, "key2": 2}
-        msg = json.dumps(d)
+        for notified in read:
+            if notified == server_socket:
+                client_socket, client_address = server_socket.accept()
+                user = recieve_message(client_socket)
+                if user is False:
+                    continue
+                sockets_list.append(client_socket)
+                clients[client_socket] = user
 
-        l = len(msg)
-        offset = len(str(l))
-        buffer = HEADER_SIZE - offset
-        packet = f"{l}" + " "*buffer + msg
+                print(f"Accepted new connection from {client_address[0]}:{client_address[1]} username {user['data'].decode('utf-8')}")
+                continue
 
-        client.send(bytes(packet, "utf-8"))
+            message = recieve_message(notified)
+            if message is False:
+                print(f"Closed connection from {clients[notified]['data'].decode('utf-8')}")
+                sockets_list.remove(notified)
+                del clients[notified]
+                continue
+
+            user = clients[notified]
+            print(f"Recieved Message from {user['data'].decode('utf-8')}: {message['data'].decode('utf-8')}")
+
+            for client in clients:
+                if client != notified:
+                    client.send(user['header'] + user['data'] + message['header'] + message['data'])
+
+        for notified in err:
+            sockets_list.remove(notified)
+            del clients[notified]
