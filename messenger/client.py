@@ -75,6 +75,7 @@ class Client:
 			j = client.recv(2048)
 			# Get a json string
 			k = json.dumps(j)
+			print(k)
 
 			#TODO parse json string and get relevant information (sender, recipient, etc)
 			

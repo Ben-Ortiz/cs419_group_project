@@ -134,11 +134,11 @@ class App:
 
         if(self.check_for_user("Anthony")):
             # create json package which includes the sender, the recipient and the message
-		    j = {
+            j = {
                 "sender": self.username,
                 "recpt": user,
                 "message": msg
-		    }
+            }
             self.client.send_msg(j)
 
     

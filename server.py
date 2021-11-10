@@ -1,6 +1,7 @@
 import socket 
 import select 
 import sys
+import json
 from threading import Thread
 
 
@@ -75,11 +76,28 @@ class Server:
 
         """Recieves outgoing messages from users and sends them to the correct recipient"""
 
-        #TODO idk
+        # loop to recieve messages from client
+        while(True):
+            j = client_sock.recv(2048)
+            k = json.dumps(j)
+            print(k)
+
+            #placeholder values
+            sender = "Anthony"
+            recpt = "Josh"
+            msg = "Test message"
+
+            # attempt to send message to recipient, if online
+            if(False):
+                # False is a placeholder for the online status of the recipient
+                break
+            # send message back to sender
+            else:
+                self.send_to(client_sock)
 
 
-    def send_to():
-
+    def send_to(client_sock, j):
+        self.server.sendall(j)
         
 
 
