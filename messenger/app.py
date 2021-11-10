@@ -133,7 +133,13 @@ class App:
         #TODO create message in the GUI
 
         if(self.check_for_user("Anthony")):
-            self.client.send_msg("Anthony", "test message")
+            # create json package which includes the sender, the recipient and the message
+		    j = {
+                "sender": self.username,
+                "recpt": user,
+                "message": msg
+		    }
+            self.client.send_msg(j)
 
     
     def check_for_user(self, user):

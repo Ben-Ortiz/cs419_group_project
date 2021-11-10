@@ -43,42 +43,56 @@ class Client:
 			return False
 
 
-	def send_msg(self, user, msg):
+	def send_msg(self, j):
 
 		"""
-		Sends message to spefied user
+		Sends message to specified user
 		
-		Pings server to see if user is online. If so, it sends the message directly to them.
-		If not, it stores the message in messages.csv
+		Sends message to server, which checks if the recipient is online.
+		If so, the server sends the message directly to them.
+		If not, the server sends it back, and it is stored in messages.csv (see recieve_msg)
+
+		j: json file containing sender, recipient, and message contents
 		"""
 
-		#TODO check if user is online
-
-		if(user_is_online()):
-			# create json package which includes the sender, the recipient and the message
-			j = {
-				"sender": self.username,
-				"recpt": user,
-				"message": msg
-			}
-			self.c.sendall(j)
-		else:
-			# Store message in messages.csv
-			with open('data/messages.csv', 'a') as msg_file:
-			csv_writer = csv.writer(msg_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-			csv_writer.writerow([user, self.username, msg])
+		
+		self.c.sendall(j)
 
 
-	def user_is_online(self, user):
+	def recieve_msg(self):
 
 		"""
-		Checks whether or not a user is online
+		Recieves incoming messages
+
+		If the message is addressed to this user, it alerts the user and shows the message.
+		If the message is FROM this user, that means the server sent it back (see send_msg) and it should be stored in messages.csv
 		"""
-		# This might not need to be its own method
 
-		# placeholder return value
-		return True
+		#TODO make it so that it recieves the entire json package before decoding it
+		# maybe include length of package in the beginning and/or don't use json (idk I haven't thought about it that much yet)
+		while(True):
 
+			j = client.recv(2048)
+			# Get a json string
+			k = json.dumps(j)
+
+			#TODO parse json string and get relevant information (sender, recipient, etc)
+			
+			#placeholder values
+			sender = "Anthony"
+			recpt = "Josh"
+			msg = "Test message"
+
+			if(sender == self.username):
+				# Store message in messages.csv
+				with open('data/messages.csv', 'a') as msg_file:
+					csv_writer = csv.writer(msg_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+					csv_writer.writerow([user, self.username, msg])
+
+			else:
+				#TODO alert user and show message in GUI
+				break
+			
 	
 	def query_server(self):
 		read, write, err = select.select(self.sockets_list, [], [])
