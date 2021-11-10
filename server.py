@@ -78,9 +78,9 @@ class Server:
 
         # loop to recieve messages from client
         while(True):
-            j = client_sock.recv(2048)
-            k = json.dumps(j)
-            print(k)
+            data = client_sock.recv(2048)
+            j = data.decode("utf-8")
+            print(j)
 
             #placeholder values
             sender = "Anthony"
@@ -91,13 +91,13 @@ class Server:
             if(False):
                 # False is a placeholder for the online status of the recipient
                 break
-            # send message back to sender
+            # return to sender
             else:
-                self.send_to(client_sock)
+                self.send_to(client_sock, data)
 
 
-    def send_to(client_sock, j):
-        self.server.sendall(j)
+    def send_to(self, client_sock, data):
+        client_sock.sendall(data)
         
 
 

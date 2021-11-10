@@ -1,10 +1,9 @@
 import sys
 from tkinter.constants import END
 from messenger.client import Client
-
 import tkinter
 import tkinter.messagebox as messagebox
-
+import json
 import csv
  
 
@@ -125,6 +124,9 @@ class App:
 
         frame.pack()
 
+        # Thread a loop to recieve any incoming messages
+        
+        
 
     def message_user(self):
         #TODO message a specific user using the GUI
@@ -135,11 +137,13 @@ class App:
         if(self.check_for_user("Anthony")):
             # create json package which includes the sender, the recipient and the message
             j = {
-                "sender": self.username,
-                "recpt": user,
-                "message": msg
+                "sender": self.user,
+                "recpt": "Anthony",
+                "message": "Test message"
             }
-            self.client.send_msg(j)
+
+            data = json.dumps(j)
+            self.client.send_msg(data)
 
     
     def check_for_user(self, user):

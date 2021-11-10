@@ -14,7 +14,7 @@ class Client:
 		self.username = username
 		self.IP = ip
 		self.port = port
-		self.sockets_list = [self.server]
+		self.sockets_list = [self.c]
 
 
 	def connect_to_server(self, reconnect=False):
@@ -28,7 +28,7 @@ class Client:
 		#NOTE I haven't really looked at the reconnect stuff yet
 
 		try:
-			self.server.connect((self.IP, self.port))
+			self.c.connect((self.IP, self.port))
 			print("Client connected to the server")		
 
 			return True
@@ -43,7 +43,7 @@ class Client:
 			return False
 
 
-	def send_msg(self, j):
+	def send_msg(self, data):
 
 		"""
 		Sends message to specified user
@@ -56,7 +56,7 @@ class Client:
 		"""
 
 		
-		self.c.sendall(j)
+		self.c.sendall(bytes(data, encoding="utf-8"))
 
 
 	def recieve_msg(self):
@@ -72,7 +72,7 @@ class Client:
 		# maybe include length of package in the beginning and/or don't use json (idk I haven't thought about it that much yet)
 		while(True):
 
-			j = client.recv(2048)
+			j = self.c.recv(2048)
 			# Get a json string
 			k = json.dumps(j)
 			print(k)
@@ -99,12 +99,12 @@ class Client:
 		read, write, err = select.select(self.sockets_list, [], [])
 
 		for s in read: 
-			if s == self.server: 
+			if s == self.c: 
 				message = s.recv(2048) 
 				print(message)
 			else: 
 				message = sys.stdin.readline() 
-				self.server.send(message) 
+				self.c.send(message) 
 				sys.stdout.write("<You>") 
 				sys.stdout.write(message) 
 				sys.stdout.flush()
