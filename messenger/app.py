@@ -6,7 +6,12 @@ import tkinter.messagebox as messagebox
 import json
 import csv
 from threading import Thread
+from messenger import support
  
+
+
+HEADER_SIZE = 10
+
 
 
 class App:
@@ -25,6 +30,7 @@ class App:
 
         packet = {
             "user": self.login_screen["user"]["entry"].get(),
+            "password": self.login_screen["password"]["entry"].get(),
             "ip"  : self.login_screen["ip"]["entry"].get(),
             "port": self.login_screen["port"]["entry"].get()
         }
@@ -44,14 +50,13 @@ class App:
             messagebox.showinfo("Error", "Client could not connect to server")
             return
 
-        # Check uniqueness of username
-        with open('data/accounts.csv') as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=',')
-            line_count = 0
-            for row in csv_reader:
-                if row[0] == packet["user"]:
-                    print(f'Username found')
-                    break
+        # Check login info
+        login_lib = {"type":"login_check", "src":packet["user"], "dest":"server", "data":packet["password"], "is_encrypted":False}
+        if(self.client.verify_login(login_lib)):
+            print(f"Successful login")
+        else:
+            print(f"Invalid login attempt")
+            exit()
 
         # Change scene
         self.login_screen["user"]["entry"].delete(0, END)
@@ -66,8 +71,8 @@ class App:
 
     def login(self):
 
-        names = ["user", "ip", "port"]
-        texts = ["Username:", "IP Address:", "Port:"]
+        names = ["user", "password", "ip", "port"]
+        texts = ["Username:", "Password:", "IP Address:", "Port:"]
 
 
         frame = tkinter.Frame(self.root)
@@ -104,7 +109,7 @@ class App:
         
         # Also I'm not sure why this is crashing the program, I know it's because recieve_msg() has an infinite loop
         # but idk why that would be a problem since it's in a seperate thread? Idk I'm going to sleep
-        t = Thread(target=self.client.recieve_msg(), args=())
+        t = Thread(target=self.client.wait_and_recieve(), args=())
         t.start()
 
         names = []

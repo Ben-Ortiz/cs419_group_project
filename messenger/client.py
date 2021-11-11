@@ -1,7 +1,10 @@
+# from _typeshed import SupportsItemAccess
+# from os import SCHED_SPORADIC
 import socket
 import select
-import errno
-import json
+import sys
+from messenger import support
+
 
 
 HEADER_SIZE = 10
@@ -28,13 +31,12 @@ class Client:
 		try:
 			self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.client_socket.connect((self.IP, self.PORT))
-			self.client_socket.setblocking(False)
+			# self.client_socket.setblocking(False)
 			print("Client connected to the server")		
 
 			return True
 
 		except ConnectionRefusedError:
-			clear()
 			print("Client could not connect to server...")
 			if not reconnect:
 				print("Connection Aborted")
@@ -43,67 +45,6 @@ class Client:
 			return False
 
 
-	def verify_login(self, password):
-
-		"""
-		Verifies login
-		"""
-		
-		packaged_message = {"type":"login_check", "src":self.USERNAME, "dest":"server", "data":password, "is_encrypted":False}
-		packet = json.dumps(packaged_message).encode("utf-8")
-
-
-		username_header = f"{len(packet):<{HEADER_SIZE}}".encode("utf-8") # packet header
-		self.client_socket.send(username_header + packet)
-
-
-	def send_msg(self, message, target):
-		
-		while True:
-			packaged_message = {"type":"message", "src":self.USERNAME, "dest":target, "data":message}
-			packet = json.dumps(packaged_message).encode("utf-8")
-
-			packet_header = f"{len(packet):<{HEADER_SIZE}}".encode("utf-8")
-			self.client_socket.send(packet_header + packet)
-
-
-	def recieve_msg(self):
-
-		"""
-		Recieves incoming messages
-		"""
-
-		try:
-            while True:
-                # Recieve things
-                username_header = self.client_socket.recv(HEADER_SIZE)
-                if not len(username_header):
-                    print("connection closed by the server")
-                    exit()
-
-                # parse header
-                username_len = int(username_header.decode("utf-8").strip())
-                username = self.client_socket.recv(username_len).decode("utf-8")
-
-                # If message type == ping
-
-                message_header = self.client_socket.recv(HEADER_SIZE)
-                message_len = int(message_header.decode("utf-8").strip())
-                message = self.client_socket.recv(message_len).decode("utf-8")
-
-                print(f"{username} > {message}")
-
-        except IOError as e:
-            if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
-                print("Reading Error:", e)
-                exit()
-            continue
-
-        except Exception as e:
-            print("General Error:", e)
-            exit()
-
-	
 	def query_server(self):
 		read, write, err = select.select(self.sockets_list, [], [])
 
@@ -117,3 +58,77 @@ class Client:
 				sys.stdout.write("<You>") 
 				sys.stdout.write(message) 
 				sys.stdout.flush()
+
+
+	def verify_login(self, login_info):
+
+		"""
+		Returns true if valid login attempt
+		"""
+
+		# send login package to server
+		self.send_message(login_info)
+
+		# wait to hear back from server
+		#TODO add some sort of timeout here
+		data = self.recieve_message()
+		header = support.unpackage_message(data["header"])
+		lib = support.unpackage_message(data["data"])
+
+		return lib["data"]
+
+
+	def send_message(self, lib):
+		
+		"""
+		Creates json from library, then sends json to the server
+		"""
+
+		self.client_socket.sendall(support.package_message(lib, HEADER_SIZE))
+
+
+	def wait_and_recieve(self):
+
+		"""
+		Listens and recieves any incoming messages, then parses them and performs appropriate actions
+		"""
+
+		while True:
+			
+			# Get new message and convert to python library
+			data = self.recieve_message()
+			header = support.unpackage_message(data["header"])
+			lib = support.unpackage_message(data["data"])
+
+			# Parse the library
+			type = lib["type"]
+			src = lib["src"]
+			dest = lib["dest"]
+			data = lib["lib"]
+
+			# Perform appropriate action
+			if(type == "ping"):
+				print(f"user was pinged")
+
+			if(type == "message"):
+				print(f"user recieved a message")
+
+	
+	def recieve_message(self):
+
+		"""
+		Recieves a single message from the socket
+
+		Returns the package header and the message library as json objects
+		"""
+
+		message_header = self.client_socket.recv(HEADER_SIZE)
+		if not len(message_header):
+			print("connection closed by the server")
+			exit()
+
+		message_length = int(message_header.decode("utf-8").strip())
+
+		package = self.client_socket.recv(message_length)
+
+		return {"header": message_header, "data": package}

@@ -5,8 +5,8 @@ import json
 
 # size of packets
 HEADER_SIZE = 10
-IP = "192.168.1.7"
-PORT = 1243
+IP = "10.0.0.63"
+PORT = 8888
 USERNAME = input("username? ")
 PASSWORD = input("password? ")
 
@@ -36,6 +36,8 @@ if __name__ == "__main__":
 
         if message:
             packaged_message = {"type":"message", "src":USERNAME, "dest":target, "data":message}
+            print("Test 1")
+            print(f"Package: " + packaged_message)
             packet = json.dumps(packaged_message).encode("utf-8")
 
             packet_header = f"{len(packet):<{HEADER_SIZE}}".encode("utf-8")
@@ -52,6 +54,8 @@ if __name__ == "__main__":
 
                 # parse header
                 username_len = int(username_header.decode("utf-8").strip())
+                print("Test 2")
+                print(f"Packet header: " + username_len)
                 username = client_socket.recv(username_len).decode("utf-8")
 
                 # If message type == ping
