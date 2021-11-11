@@ -3,7 +3,7 @@ import select
 import errno
 import json
 
-
+# size of packets
 HEADER_SIZE = 10
 IP = "192.168.1.7"
 PORT = 1243
@@ -13,18 +13,24 @@ PASSWORD = input("password? ")
 
 if __name__ == "__main__":
 
+
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((IP, PORT))
     client_socket.setblocking(False)
 
+    # verify login
     packaged_message = {"type":"login_check", "src":USERNAME, "dest":"server", "data":PASSWORD, "is_encrypted":False}
     packet = json.dumps(packaged_message).encode("utf-8")
 
-    username_header = f"{len(packet):<{HEADER_SIZE}}".encode("utf-8")
+
+    username_header = f"{len(packet):<{HEADER_SIZE}}".encode("utf-8") # packet header
     client_socket.send(username_header + packet)
 
 
+    # message sending
     while True:
+        # command line input
+        # double hitting enter will refresh
         message = input(f"{USERNAME} > ")
         target = input(f"to? > ")
 
@@ -35,6 +41,7 @@ if __name__ == "__main__":
             packet_header = f"{len(packet):<{HEADER_SIZE}}".encode("utf-8")
             client_socket.send(packet_header + packet)
         
+        # Recieving messages
         try:
             while True:
                 # Recieve things
@@ -42,8 +49,12 @@ if __name__ == "__main__":
                 if not len(username_header):
                     print("connection closed by the server")
                     exit()
+
+                # parse header
                 username_len = int(username_header.decode("utf-8").strip())
                 username = client_socket.recv(username_len).decode("utf-8")
+
+                # If message type == ping
 
                 message_header = client_socket.recv(HEADER_SIZE)
                 message_len = int(message_header.decode("utf-8").strip())

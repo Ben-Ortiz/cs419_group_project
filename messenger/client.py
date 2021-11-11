@@ -1,21 +1,19 @@
 import socket
 import select
-import sys
-import csv
+import errno
 import json
-from messenger.support import clear
-from threading import Thread
+
+
+HEADER_SIZE = 10
+
 
 
 class Client:
 
 	def __init__(self, username, ip, port) -> None:
-		self.c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.username = username
+		self.USERNAME = username
 		self.IP = ip
-		self.port = port
-		self.sockets_list = [self.c]
-
+		self.PORT = port
 
 	def connect_to_server(self, reconnect=False):
 
@@ -28,7 +26,9 @@ class Client:
 		#NOTE I haven't really looked at the reconnect stuff yet
 
 		try:
-			self.c.connect((self.IP, self.port))
+			self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			self.client_socket.connect((self.IP, self.PORT))
+			self.client_socket.setblocking(False)
 			print("Client connected to the server")		
 
 			return True
@@ -43,56 +43,65 @@ class Client:
 			return False
 
 
-	def send_msg(self, data):
+	def verify_login(self, password):
 
 		"""
-		Sends message to specified user
-		
-		Sends message to server, which checks if the recipient is online.
-		If so, the server sends the message directly to them.
-		If not, the server sends it back, and it is stored in messages.csv (see recieve_msg)
-
-		j: json file containing sender, recipient, and message contents
+		Verifies login
 		"""
-
 		
-		self.c.sendall(bytes(data, encoding="utf-8"))
+		packaged_message = {"type":"login_check", "src":self.USERNAME, "dest":"server", "data":password, "is_encrypted":False}
+		packet = json.dumps(packaged_message).encode("utf-8")
+
+
+		username_header = f"{len(packet):<{HEADER_SIZE}}".encode("utf-8") # packet header
+		self.client_socket.send(username_header + packet)
+
+
+	def send_msg(self, message, target):
+		
+		while True:
+			packaged_message = {"type":"message", "src":self.USERNAME, "dest":target, "data":message}
+			packet = json.dumps(packaged_message).encode("utf-8")
+
+			packet_header = f"{len(packet):<{HEADER_SIZE}}".encode("utf-8")
+			self.client_socket.send(packet_header + packet)
 
 
 	def recieve_msg(self):
 
 		"""
 		Recieves incoming messages
-
-		If the message is addressed to this user, it alerts the user and shows the message.
-		If the message is FROM this user, that means the server sent it back (see send_msg) and it should be stored in messages.csv
 		"""
 
-		#TODO make it so that it recieves the entire json package before decoding it
-		# maybe include length of package in the beginning and/or don't use json (idk I haven't thought about it that much yet)
-		while(True):
+		try:
+            while True:
+                # Recieve things
+                username_header = self.client_socket.recv(HEADER_SIZE)
+                if not len(username_header):
+                    print("connection closed by the server")
+                    exit()
 
-			data = self.c.recv(2048)
-			# Get a json string
-			j = data.decode("utf-8")
-			print(j)
+                # parse header
+                username_len = int(username_header.decode("utf-8").strip())
+                username = self.client_socket.recv(username_len).decode("utf-8")
 
-			#TODO parse json string and get relevant information (sender, recipient, etc)
-			
-			#placeholder values
-			sender = "Anthony"
-			recpt = "Josh"
-			msg = "Test message"
+                # If message type == ping
 
-			if(sender == self.username):
-				# Store message in messages.csv
-				with open('data/messages.csv', 'a') as msg_file:
-					csv_writer = csv.writer(msg_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-					csv_writer.writerow([user, self.username, msg])
+                message_header = self.client_socket.recv(HEADER_SIZE)
+                message_len = int(message_header.decode("utf-8").strip())
+                message = self.client_socket.recv(message_len).decode("utf-8")
 
-			else:
-				#TODO alert user and show message in GUI
-				break
+                print(f"{username} > {message}")
+
+        except IOError as e:
+            if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
+                print("Reading Error:", e)
+                exit()
+            continue
+
+        except Exception as e:
+            print("General Error:", e)
+            exit()
 
 	
 	def query_server(self):
