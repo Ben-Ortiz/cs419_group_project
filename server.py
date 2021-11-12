@@ -20,6 +20,7 @@ def recieve_message(client_socket):
         message_header = client_socket.recv(HEADER_SIZE)
 
         if not len(message_header):
+            print("Client disconnected")
             return False
 
         message_length = int(message_header.decode("utf-8").strip())
@@ -71,6 +72,7 @@ if __name__ == "__main__":
                     failure = {"type":"login_check", "src":"server", "dest":"user", "data":False, "is_encrypted":False}
                     packet = support.package_message(failure, HEADER_SIZE)
                     client_socket.send(packet)
+                    
                     continue
 
                 valid = accounts.loc[user, "password"]
@@ -80,8 +82,7 @@ if __name__ == "__main__":
                     failure = {"type":"login_check", "src":"server", "dest":"user", "data":False, "is_encrypted":False}
                     packet = support.package_message(failure, HEADER_SIZE)
                     client_socket.send(packet)
-                    print("Sleeping for 10 seconds...")
-                    time.sleep(10)
+
                     continue
                 sockets_list.append(client_socket)
                 clients[client_socket] = user
@@ -89,9 +90,14 @@ if __name__ == "__main__":
                 print(f"Accepted new connection from {client_address[0]}:{client_address[1]} username {user}")
                 success = {"type":"login_check", "src":"server", "dest":"user", "data":True, "is_encrypted":False}
                 packet = support.package_message(success, HEADER_SIZE)
+                client_socket.send(packet)
+
+                continue
 
             # Handle Messages Sent to the Server
             message = recieve_message(notified)
+            if not message:
+                continue
             user = clients[notified]
             data = message["data"].decode("utf-8")
             data = json.loads(data)
