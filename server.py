@@ -72,7 +72,7 @@ if __name__ == "__main__":
                     failure = {"type":"login_check", "src":"server", "dest":"user", "data":False, "is_encrypted":False}
                     packet = support.package_message(failure, HEADER_SIZE)
                     client_socket.send(packet)
-                    
+
                     continue
 
                 valid = accounts.loc[user, "password"]
@@ -108,7 +108,7 @@ if __name__ == "__main__":
                 # TODO: add message to user table
 
                 # Ping user to see if connection is active
-                client = clients[data["dest"]]
+                client = clients[data["dest"]] #this line crashes
                 ping = {'type': 'ping', 'src': 'server', 'dest': 'server', 'data': 'sending'}
                 packet = support.package_message(ping, HEADER_SIZE)
                 client.send(packet)

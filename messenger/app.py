@@ -100,28 +100,18 @@ class App:
 
     def home(self):
 
-        #TODO load new messages from messages.csv
+        #TODO make simple gui to send a message to a given user
 
-        print(f'home')
-
-        # Thread to recieve any incoming messages
-        # This might not need to be threaded
-        
-        # Also I'm not sure why this is crashing the program, I know it's because recieve_msg() has an infinite loop
-        # but idk why that would be a problem since it's in a seperate thread? Idk I'm going to sleep
-        #t = Thread(target=self.client.wait_and_recieve(), args=())
-        #t.start()
-
-        names = []
-        texts = []
+        names = ["dest", "message"]
+        texts = ["To:", "Message:"]
 
         frame = tkinter.Frame(self.root)
         self.home_screen = {
             "frame":frame
         }
 
-        self.home_screen["user"] = tkinter.Label(frame, text=f"Username: {self.user}")
-        self.home_screen["user"].grid(row=0, column=0)
+        #self.home_screen["user"] = tkinter.Label(frame, text=f"Username: {self.user}")
+        #self.home_screen["user"].grid(row=0, column=0)
 
         for i in range(len(names)):
             widget = {}
@@ -134,33 +124,23 @@ class App:
             self.home_screen[names[i]] = widget           
         
         widget = {}
-        widget["bttn"] = tkinter.Button(frame, text="Send Message to Anthony", command=self.message_user)
+        widget["bttn"] = tkinter.Button(frame, text="Send Message", command=self.message_user)
         widget["bttn"].grid(row=6, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
         self.home_screen["submit"] = widget
 
         frame.pack()
-        
+
+        # Thread to recieve any incoming messages
+        # This might not need to be threaded
+        t = Thread(target=self.client.wait_and_recieve)
+        t.start()
+
 
     def message_user(self):
-        #TODO message a specific user using the GUI
-        #TODO create (in the GUI) a list of users to message, which
-        # would make the check_for_user method obsolete
-        #TODO create message in the GUI
+        packet = {
+            "dest": self.home_screen["dest"]["entry"].get(),
+            "message": self.home_screen["message"]["entry"].get()
+        }
 
-        if(self.check_for_user("Anthony")):
-            # create json package which includes the sender, the recipient and the message
-            j = {
-                "sender": self.user,
-                "recpt": "Anthony",
-                "message": "Test message"
-            }
-
-            data = json.dumps(j)
-            self.client.send_msg(data)
-
-    
-    def check_for_user(self, user):
-
-        """Checks database to see if account exists"""
-
-        return True
+        message_lib = {"type":"message", "src":self.user, "dest":packet["dest"], "data":packet["message"], "is_encrypted":True}
+        self.client.send_message(message_lib)
