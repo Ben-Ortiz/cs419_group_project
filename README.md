@@ -11,5 +11,3 @@ Future Plans:
 Instead of inserting numbers completely randomly, create a probability distribution that makes some letters much more likely to be inserted than others. This will create the illusion of patterns being present in the encrypted text. If an attacker were to try to run a frequency analysis on the ciphertext the frequencies of the letters will all be thrown off by the inserted letters. Note that for a frequency analysis to even be somewhat effective on this encryption scheme an extremly large amount of ciphertext woul need to be captured.
 
 There will also be multiple keys asscoiated with each user in the chatroom. How these keys will rotate I'm not sure of yet. Possible ideas are rotating the keys by message such that each message is encrypted by a different key until the keys repeat. Another possibility is to keep the server and client in sync timewise and rotate the keys every x amount of time. 
-
-testing
