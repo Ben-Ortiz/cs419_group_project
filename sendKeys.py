@@ -1,5 +1,4 @@
 import numpy as np
-from math import gcd as bltin_gcd
 
 """
 Diffie-Hellman Key Exchange from wikipedia inspired key exchange from client to server  
