@@ -1,3 +1,5 @@
+import numpy as np
+
 #Diffie-Hellman Key Exchange inspired key exchange from client to server
 
 def main():
@@ -5,7 +7,7 @@ def main():
     print("test")
 
     key = np.random.randint(0, high = (2**64) - 1, dtype='uint64')
-    key = key.item()
+    # key = key.item()
 
     print(key)
 
