@@ -1,60 +1,55 @@
 import numpy as np
+from math import gcd as bltin_gcd
 
 """
-Diffie-Hellman Key Exchange inspired key exchange from client to server
+Diffie-Hellman Key Exchange from wikipedia inspired key exchange from client to server  
 
-given p and g (known to outsiders)
-where p and g are prime numbers
-and g is a primtive root modulo number of p
-example:
-p = 29
-g = {2,3,8,10,11,14,15,18,19,21,26,27}
+public number is randomly generated
 
-p = 29
-g = 3
+keyClient(Alice) randomly generates a number
+keyServer(Bob) randomly generates a number
 
-client has a key a 
-server has a key b
 
-client uses g, a, and p to create A
-A = (g**a) % p
+Alice mods their randomly generated number to the public number
+A = keyClient % publicNumber
 
-server uses g, b, and p to create B
-B = (g**b) % p
+Bob mods their randomly generated number to the public number
+B = keyServer % publicNumber
 
-client shares A to server
-server shares B to client
+Alice sends their number to Bob
+Bob sends their number to Alice
 
-client takes B from server to create shared A
-shared A = (B**a) % p
-server takes A from client to create shared B
-shared B = (A**b) % p
+Alice has Bobs number (B) and adds it with their key(keyClient) 
+sharedA = B + keyClient
 
-shared A should equal shared B
-shared A == Shared B
-which would mean they are now able to connect
+Bob has Alices number (A) and adds it with their key(keyServer)
+sharedB = A + keyServer
 
+A loop runs until sharedA == sharedB
+if they are equal the client is able to connect with the server
 """
+
+def keyExchange():
+    while(1):
+
+        publicNumber = np.random.randint(0, high = (2**64) - 1, dtype='uint64')
+
+        keyClient = np.random.randint(0, high = (2**64) - 1, dtype='uint64') # sent to server
+        keyServer = np.random.randint(0, high = (2**64) - 1, dtype='uint64') # sent to client
+
+        A = keyClient % publicNumber # sent to server
+        B = keyServer % publicNumber # sent to client
+
+        sharedA = B + keyClient
+        sharedB = A + keyServer
+        if sharedA == sharedB:
+            return True
 
 def main():
     #TODO ask messenger team about how I would send keys from client to server if I have one implemented
-    # print("test")
 
-    # key = np.random.randint(0, high = (2**64) - 1, dtype='uint64')
-    # key = key.item()
-
-
-    p = 23
-    g = 19
-
-    keyClient = np.random.randint(0, high = (2**64) - 1, dtype='uint64')
-    keyServer = np.random.randint(0, high = (2**64) - 1, dtype='uint64')
-
-    A = (g**keyClient) % p
-    B = (g**keyServer) % p
-
-    print(A)
-    print(B)
+    if(keyExchange):
+        print("keys are equal from client and server, connection may begin")
 
 
 if __name__ == "__main__":
