@@ -1,10 +1,7 @@
-import sys
 from tkinter.constants import END
 from messenger.client import Client
-import tkinter
+import tkinter as tk
 import tkinter.messagebox as messagebox
-import json
-import csv
 from threading import Thread
 from messenger import support
  
@@ -17,7 +14,7 @@ HEADER_SIZE = 10
 class App:
 
     def __init__(self) -> None:
-        self.root = tkinter.Tk()
+        self.root = tk.Tk()
         self.root.title = "Login"
         self.login()
 
@@ -75,15 +72,15 @@ class App:
         texts = ["Username:", "Password:", "IP Address:", "Port:"]
 
 
-        frame = tkinter.Frame(self.root)
+        frame = tk.Frame(self.root)
         self.login_screen = {
             "frame":frame
         }
         
         for i in range(len(names)):
             widget = {}
-            widget["lbl"] = tkinter.Label(frame, text=texts[i])
-            widget["entry"] = tkinter.Entry(frame, width=30)
+            widget["lbl"] = tk.Label(frame, text=texts[i])
+            widget["entry"] = tk.Entry(frame, width=30)
 
             widget["lbl"].grid(row=i, column=0)
             widget["entry"].grid(row=i, column=1)
@@ -91,7 +88,7 @@ class App:
             self.login_screen[names[i]] = widget           
         
         widget = {}
-        widget["bttn"] = tkinter.Button(frame, text="Add", command=self.connect)
+        widget["bttn"] = tk.Button(frame, text="Add", command=self.connect)
         widget["bttn"].grid(row=6, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
         self.login_screen["submit"] = widget
 
@@ -100,33 +97,21 @@ class App:
 
     def home(self):
 
-        #TODO load new messages from messages.csv
+        names = ["dest", "message"]
+        texts = ["To:", "Message:"]
 
-        print(f'home')
-
-        # Thread to recieve any incoming messages
-        # This might not need to be threaded
-        
-        # Also I'm not sure why this is crashing the program, I know it's because recieve_msg() has an infinite loop
-        # but idk why that would be a problem since it's in a seperate thread? Idk I'm going to sleep
-        #t = Thread(target=self.client.wait_and_recieve(), args=())
-        #t.start()
-
-        names = []
-        texts = []
-
-        frame = tkinter.Frame(self.root)
+        frame = tk.Frame(self.root)
         self.home_screen = {
             "frame":frame
         }
 
-        self.home_screen["user"] = tkinter.Label(frame, text=f"Username: {self.user}")
-        self.home_screen["user"].grid(row=0, column=0)
+        #self.home_screen["user"] = tk.Label(frame, text=f"Username: {self.user}")
+        #self.home_screen["user"].grid(row=0, column=0)
 
         for i in range(len(names)):
             widget = {}
-            widget["lbl"] = tkinter.Label(frame, text=texts[i])
-            widget["entry"] = tkinter.Entry(frame, width=30)
+            widget["lbl"] = tk.Label(frame, text=texts[i])
+            widget["entry"] = tk.Entry(frame, width=30)
 
             widget["lbl"].grid(row=i, column=0)
             widget["entry"].grid(row=i, column=1)
@@ -134,33 +119,22 @@ class App:
             self.home_screen[names[i]] = widget           
         
         widget = {}
-        widget["bttn"] = tkinter.Button(frame, text="Send Message to Anthony", command=self.message_user)
+        widget["bttn"] = tk.Button(frame, text="Send Message", command=self.message_user)
         widget["bttn"].grid(row=6, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
         self.home_screen["submit"] = widget
 
         frame.pack()
-        
+
+        # Thread to recieve any incoming messages
+        t = Thread(target=self.client.wait_and_recieve)
+        t.start()
+
 
     def message_user(self):
-        #TODO message a specific user using the GUI
-        #TODO create (in the GUI) a list of users to message, which
-        # would make the check_for_user method obsolete
-        #TODO create message in the GUI
+        packet = {
+            "dest": self.home_screen["dest"]["entry"].get(),
+            "message": self.home_screen["message"]["entry"].get()
+        }
 
-        if(self.check_for_user("Anthony")):
-            # create json package which includes the sender, the recipient and the message
-            j = {
-                "sender": self.user,
-                "recpt": "Anthony",
-                "message": "Test message"
-            }
-
-            data = json.dumps(j)
-            self.client.send_msg(data)
-
-    
-    def check_for_user(self, user):
-
-        """Checks database to see if account exists"""
-
-        return True
+        message_lib = {"type":"message", "src":self.user, "dest":packet["dest"], "data":packet["message"], "is_encrypted":True}
+        support.send_message(message_lib, self.client.client_socket, HEADER_SIZE)

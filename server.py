@@ -1,39 +1,15 @@
 import socket
 import select
-import json
-import time
+import csv
+import sys
 import pandas as pd
 from messenger import support
 
 
 
-# IP = sys.argv[1]
-# PORT = sys.argv[2]
-IP = "10.0.0.63"
-PORT = 8888
+IP = sys.argv[1]
+PORT = int(sys.argv[2])
 HEADER_SIZE = 10
-
-
-
-def recieve_message(client_socket):
-    try:
-        message_header = client_socket.recv(HEADER_SIZE)
-
-        if not len(message_header):
-            print("Client disconnected")
-            return False
-
-        message_length = int(message_header.decode("utf-8").strip())
-
-        data = client_socket.recv(message_length)
-
-        return {"header": message_header, "data": data}
-
-    except:
-        return False
-
-def send_to(client_sock, data):
-    client_sock.sendall(data)
 
 
 
@@ -48,22 +24,30 @@ if __name__ == "__main__":
     print("Waiting for client request..")
     server_socket.listen()
 
-    sockets_list = [server_socket]
-    clients = {}
+    connections = {server_socket: 'server'} # active connections
+    active_clients = {} # active users
 
 
     while True:
-        read, _, err = select.select(sockets_list, [], sockets_list)
+        # select() returns three new lists, containing subsets of the contents of the lists passed in.
+        # All of the sockets in the readable list have incoming data buffered and available to be read.
+        # All of the sockets in the writable list have free space in their buffer and can be written to.
+        # The sockets returned in exceptional have had an error (the actual definition of “exceptional condition” depends on the platform).
 
-        for notified in read:
+        # Get list of sockets which are ready to be read through select()
+        read_sockets, write_sockets, err_sockets = select.select(connections, [], connections)
+
+        for conn in read_sockets:
 
             # Handle New Connections to the Server
-            if notified == server_socket:
+            if conn == server_socket:
+                # Handle the case in which there is a new connection recieved through server_socket
                 client_socket, client_address = server_socket.accept()
-                message = recieve_message(client_socket)
-                data = json.loads(message["data"].decode("utf-8"))
-                user = data["src"]
-                password = data["data"]
+                data = support.recieve_message(client_socket, HEADER_SIZE)
+                header = support.unpackage_message(data['header'])
+                lib = support.unpackage_message(data['data'])
+                user = lib["src"]
+                password = lib["data"]
 
                 accounts = pd.read_csv("data/accounts.csv", index_col=0)
                 user_check = user in accounts.index
@@ -72,7 +56,7 @@ if __name__ == "__main__":
                     failure = {"type":"login_check", "src":"server", "dest":"user", "data":False, "is_encrypted":False}
                     packet = support.package_message(failure, HEADER_SIZE)
                     client_socket.send(packet)
-                    
+
                     continue
 
                 valid = accounts.loc[user, "password"]
@@ -84,8 +68,8 @@ if __name__ == "__main__":
                     client_socket.send(packet)
 
                     continue
-                sockets_list.append(client_socket)
-                clients[client_socket] = user
+                connections[client_socket] = user
+                active_clients[user] = client_socket
 
                 print(f"Accepted new connection from {client_address[0]}:{client_address[1]} username {user}")
                 success = {"type":"login_check", "src":"server", "dest":"user", "data":True, "is_encrypted":False}
@@ -95,37 +79,41 @@ if __name__ == "__main__":
                 continue
 
             # Handle Messages Sent to the Server
-            message = recieve_message(notified)
-            if not message:
+            data = support.recieve_message(conn, HEADER_SIZE)
+            if not data:
+                print("User disconnected")
+                del active_clients[connections[conn]]
+                del connections[conn]
                 continue
-            user = clients[notified]
-            data = message["data"].decode("utf-8")
-            data = json.loads(data)
+            header = support.unpackage_message(data['header'])
+            lib = support.unpackage_message(data['data'])
+            recipient = lib["dest"]
 
-            if data["type"] == "message":
-                # Store message in csv
-                messages = pd.read_csv("data/messages.csv", index_col=0)
-                # TODO: add message to user table
+            if lib["type"] == "message":
+                # Store message in conversations.csv
+                # Open conversations.csv in append mode
+                with open('conversations.csv', mode='a') as conversations:
+                    writer = csv.writer(conversations, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-                # Ping user to see if connection is active
-                client = clients[data["dest"]]
-                ping = {'type': 'ping', 'src': 'server', 'dest': 'server', 'data': 'sending'}
-                packet = support.package_message(ping, HEADER_SIZE)
-                client.send(packet)
+                    writer.writerow([lib['src'], lib['dest'], lib['data']])
+                    conversations.close()
 
-                # If connection is active, send message to User
-                client.send(message)
+                # Search connections to see if recipient user is active
+                if recipient in active_clients:
+                    # Send message to user
+                    print(f"Sending message from {lib['src']} to {recipient}")
+                    support.send_message(lib, active_clients[recipient], HEADER_SIZE)
+
+                # Otherwise store message in messages.csv
+                else:
+                    with open('messages.csv', mode='a') as messages:
+                        writer = csv.writer(messages, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+                        writer.writerow([lib['src'], lib['dest'], lib['data']])
+                        messages.close()
+
                 continue
 
-            if message is False:
-                print(f"Closed connection from {clients[notified]['data'].decode('utf-8')}")
-                sockets_list.remove(notified)
-                del clients[notified]
-                continue
-            
-            print(f"Recieved Message from {user}: {data}")
-
-
-        for notified in err:
-            sockets_list.remove(notified)
-            del clients[notified]
+        for conn in err_sockets:
+            del active_clients[connections[conn]]
+            del connections[conn]
