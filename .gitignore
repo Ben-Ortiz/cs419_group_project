@@ -5,6 +5,7 @@ messenger/__pycache__/client.cpython-39.pyc
 messenger/__pycache__/support.cpython-39.pyc
 .vscode
 .ipynb_checkpoints
+messenger/testing
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
