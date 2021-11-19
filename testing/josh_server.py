@@ -1,30 +1,89 @@
-import socket, threading
-class ClientThread(threading.Thread):
-    def __init__(self,clientAddress,clientsocket):
-        threading.Thread.__init__(self)
-        self.csocket = clientsocket
-        print ("New connection added: ", clientAddress)
-    def run(self):
-        print ("Connection from : ", clientAddress)
-        #self.csocket.send(bytes("Hi, This is from Server..",'utf-8'))
-        msg = ''
-        while True:
-            data = self.csocket.recv(2048)
-            msg = data.decode()
-            if msg=='bye':
-              break
-            print ("from client", msg)
-            self.csocket.send(bytes(msg,'UTF-8'))
-        print ("Client at ", clientAddress , " disconnected...")
-LOCALHOST = "10.0.0.63"
-PORT = 8888
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-server.bind((LOCALHOST, PORT))
-print("Server started")
-print("Waiting for client request..")
-while True:
-    server.listen(1)
-    clientsock, clientAddress = server.accept()
-    newthread = ClientThread(clientAddress, clientsock)
-    newthread.start()
+import select
+
+import socket
+
+ 
+
+# Class representing a log file
+
+class LogFile:
+
+  
+
+    def __init__(self, logFileName, logFile, descriptor):
+
+        self.myLogFileName  = logFileName
+
+        self.myLogFile      = logFile
+
+        self.myDescriptor   = descriptor
+
+ 
+
+# List of log files
+
+logFiles    = []
+
+ 
+
+file        = open("LogFile1.txt", "w")
+
+logFile1    = LogFile("LogFile1.txt", file, file.fileno())
+
+logFiles.append(logFile1)
+
+ 
+
+file        = open("LogFile2.txt", "w")
+
+logFile2    = LogFile("LogFile2.txt", file, file.fileno())
+
+logFiles.append(logFile2)
+
+ 
+
+file        = open("LogFile3.txt", "w")
+
+logFile3    = LogFile("LogFile3.txt", file, file.fileno())
+
+logFiles.append(logFile3)
+
+ 
+
+# List of descriptors for read, write and exception conditions
+
+rdescriptors    = []
+
+wdescriptors    = []
+
+xdescriptors    = []
+
+ 
+
+# Add the write descriptors to the write descriptor list
+
+for log in logFiles:
+
+    wdescriptors.append(log.myDescriptor)
+
+ 
+
+# Wait for write condition
+
+rlist, wlist, xlist = select.select(rdescriptors, wdescriptors, xdescriptors)
+
+ 
+
+print("Number of descriptors ready for write %d"%(len(wlist)))
+
+ 
+
+# Write to all the logs that are ready
+
+for writeDescriptor in wlist:
+
+    for log in logFiles:
+
+        if log.myDescriptor is writeDescriptor:
+
+            log.myLogFile.write("Starting to log events")

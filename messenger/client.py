@@ -67,13 +67,12 @@ class Client:
 		"""
 
 		# send login package to server
-		self.send_message(login_info)
+		support.send_message(login_info, self.client_socket, HEADER_SIZE)
 
 		# wait to hear back from server
 		#TODO add some sort of timeout here
-		data = self.recieve_message()
-		header = support.unpackage_message(data["header"])
-		lib = support.unpackage_message(data["data"])
+		data = support.recieve_message(self.client_socket, HEADER_SIZE)
+		lib = support.unpackage_message(data['data'])
 
 		return lib["data"]
 
@@ -90,45 +89,24 @@ class Client:
 	def wait_and_recieve(self):
 
 		"""
-		Listens and recieves any incoming messages, then parses them and performs appropriate actions
+		Listens for and recieves any incoming messages, then parses them and performs appropriate actions
 		"""
 
 		while True:
 			
 			# Get new message and convert to python library
-			data = self.recieve_message()
-			header = support.unpackage_message(data["header"])
-			lib = support.unpackage_message(data["data"])
+			data = support.recieve_message(self.client_socket, HEADER_SIZE)
+			if not data:
+				print("Disconnected by server")
+				exit()
+			lib = support.unpackage_message(data['data'])
 
 			# Parse the library
 			type = lib["type"]
 			src = lib["src"]
 			dest = lib["dest"]
-			data = lib["lib"]
+			message = lib["data"]
 
 			# Perform appropriate action
-			if(type == "ping"):
-				print(f"user was pinged")
-
 			if(type == "message"):
-				print(f"user recieved a message")
-
-	
-	def recieve_message(self):
-
-		"""
-		Recieves a single message from the socket
-
-		Returns the package header and the message library as json objects
-		"""
-
-		message_header = self.client_socket.recv(HEADER_SIZE)
-		if not len(message_header):
-			print("connection closed by the server")
-			exit()
-
-		message_length = int(message_header.decode("utf-8").strip())
-
-		package = self.client_socket.recv(message_length)
-
-		return {"header": message_header, "data": package}
+				print(f"user recieved a message from {src}: {message}")
