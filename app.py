@@ -56,7 +56,17 @@ class App:
             self.port = 8888
 
             if not self.connect(self):
-                print("Try again")
+                while(True):
+                    retry = input("Try again? (y/n) ")
+                    if retry == 'y':
+                        break
+                    if retry == 'n':
+                        print("\n")
+                        stack.append(self.main)
+                        return
+                    else:
+                        print("Invalid input")
+
                 continue
 
             # Check login info
@@ -70,17 +80,16 @@ class App:
                     if retry == 'y':
                         break
                     if retry == 'n':
-                        #TODO go back to home
-                        break
+                        print("\n")
+                        stack.append(self.main)
+                        return
                     else:
                         print("Invalid input")
-                        break
 
                 continue
-
-                
-
+    
         stack.append(self.home)
+        stack.append(self.recieve_messages)
 
 
     def new_account(self):
@@ -96,13 +105,16 @@ class App:
             self.port = 8888
 
             if not self.connect(self):
-                """
-                retry = input("Try again? (y/n) ")
-                if retry.lower() == 'y':
-                    continue
-                if retry.lower() == 'n':
-                """
-                print("try again")
+                while(True):
+                    retry = input("Try again? (y/n) ")
+                    if retry == 'y':
+                        break
+                    if retry == 'n':
+                        print("\n")
+                        stack.append(self.main)
+                        return
+                    else:
+                        print("Invalid input")
 
                 continue
 
@@ -110,10 +122,27 @@ class App:
                 print("Successfully created account")
                 break
             else:
-                print("Could not create account. Your username may already exist.")
+                while(True):
+                    retry = input("Failed to create account. Your username may already be taken. Try again? (y/n) ")
+                    if retry == 'y':
+                        break
+                    if retry == 'n':
+                        print("\n")
+                        stack.append(self.main)
+                        return
+                    else:
+                        print("Invalid input")
+
                 continue
 
         stack.append(self.home)
+        stack.append(self.recieve_messages)
+
+
+    def recieve_messages(self):
+        # Thread to recieve any incoming messages
+        t = Thread(target=self.client.wait_and_recieve)
+        t.start()
 
 
     def home(self):
@@ -121,10 +150,6 @@ class App:
         print("\n")
 
         admin = self.user == "Admin"
-
-        # Thread to recieve any incoming messages
-        t = Thread(target=self.client.wait_and_recieve)
-        t.start()
 
         print("Message a user: message")
         print("Show conversation with a user: conversation")
@@ -136,14 +161,17 @@ class App:
         while(True):
             x = input()
             if "message".startswith(x.lower()):
+                stack.append(self.home)
                 stack.append(self.message_user)
                 break
 
             if "conversation".startswith(x.lower()):
+                stack.append(self.home)
                 stack.append(self.show_messages)
                 break
 
             if "remove".startswith(x.lower()) and admin:
+                stack.append(self.home)
                 stack.append(self.remove_user)
                 break
 
@@ -184,4 +212,5 @@ if __name__ == "__main__":
     stack = [App.main]
     while(stack):
         #Perform action of last item on stack
-        stack[-1](App)
+        action = stack.pop()
+        action(App)
