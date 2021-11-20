@@ -25,5 +25,3 @@ enter the username: Anthony, password: 123, IP Address(as before) and port(8888)
 a gui to enter who to send message to and what to send should pop up   
    
 Now you can send messages from one to the other and the messages will appear in all terminals (server terminal, 1st client terminal and 2nd client terminal)
-
-test
