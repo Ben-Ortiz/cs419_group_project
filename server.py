@@ -98,7 +98,7 @@ if __name__ == "__main__":
                         continue
 
                     #TODO figure out how to use panda dataframes
-                    key = None
+                    key = 5 #placeholder value so the rest of the code works
 
                     connections[client_socket] = user
                     active_clients[user] = client_socket
