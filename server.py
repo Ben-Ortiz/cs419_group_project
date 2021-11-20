@@ -3,7 +3,7 @@ import select
 import csv
 import sys
 import pandas as pd
-from messenger import support
+import support
 
 
 
@@ -48,35 +48,75 @@ if __name__ == "__main__":
                 dict = support.unpackage_message(data['data'])
                 user = dict["src"]
                 password = dict["data"]
-
                 accounts = pd.read_csv("data/accounts.csv", index_col=0)
                 user_check = user in accounts.index
-                if not user_check:
-                    print("Username not valid")
-                    failure = {"type":"login_check", "src":"server", "dest":"user", "data":False, "is_encrypted":False}
-                    packet = support.package_message(failure, HEADER_SIZE)
+
+                # Handle new account creation
+                if dict['type'] == "account_creation":
+                    if user_check:
+                        print("Username already taken")
+                        failure = {"type":"account_creation", "src":"server", "dest":"user", "data":False, "is_encrypted":False}
+                        packet = support.package_message(failure, HEADER_SIZE)
+                        client_socket.send(packet)
+
+                        continue
+
+                    #TODO generate key
+                    key = None
+
+                    #TODO add new account to accounts.csv
+                    with open('accounts.csv', mode='a') as accounts:
+                        writer = csv.writer(accounts, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+                        writer.writerow(user, password, key)
+                        accounts.close()
+
+                    connections[client_socket] = user
+                    active_clients[user] = client_socket
+
+                    print(f"Accepted new connection from {client_address[0]}:{client_address[1]} username {user}")
+                    success = {"type":"account_creation", "src":"server", "dest":"user", "data":True, "is_encrypted":False}
+                    packet = support.package_message(success, HEADER_SIZE)
                     client_socket.send(packet)
 
                     continue
 
-                valid = accounts.loc[user, "password"]
 
-                if user is False or password != valid:
-                    print("user validation failed")
-                    failure = {"type":"login_check", "src":"server", "dest":"user", "data":False, "is_encrypted":False}
-                    packet = support.package_message(failure, HEADER_SIZE)
+                # Handle account login
+                if dict['type'] == "login_check":
+                    if not user_check:
+                        print("Username not valid")
+                        failure = {"type":"login_check", "src":"server", "dest":"user", "data":False, "is_encrypted":False}
+                        packet = support.package_message(failure, HEADER_SIZE)
+                        client_socket.send(packet)
+
+                        continue
+
+                    valid = accounts.loc[user, "password"]
+
+                    if user is False or password != valid:
+                        print("user validation failed")
+                        failure = {"type":"login_check", "src":"server", "dest":"user", "data":False, "is_encrypted":False}
+                        packet = support.package_message(failure, HEADER_SIZE)
+                        client_socket.send(packet)
+
+                        continue
+
+                    #TODO get key from accounts.csv
+
+                    connections[client_socket] = user
+                    active_clients[user] = client_socket
+
+                    print(f"Accepted new connection from {client_address[0]}:{client_address[1]} username {user}")
+                    success = {"type":"login_check", "src":"server", "dest":"user", "data":True, "is_encrypted":False}
+                    packet = support.package_message(success, HEADER_SIZE)
                     client_socket.send(packet)
 
                     continue
-                connections[client_socket] = user
-                active_clients[user] = client_socket
 
-                print(f"Accepted new connection from {client_address[0]}:{client_address[1]} username {user}")
-                success = {"type":"login_check", "src":"server", "dest":"user", "data":True, "is_encrypted":False}
-                packet = support.package_message(success, HEADER_SIZE)
-                client_socket.send(packet)
-
-                continue
+                else:
+                    print("Some weird error happened.")
+                    continue
 
             # Handle Messages Sent to the Server
             data = support.recieve_message(conn, HEADER_SIZE)

@@ -3,7 +3,7 @@
 import socket
 import select
 import sys
-from messenger import support
+import support
 
 
 
@@ -17,6 +17,7 @@ class Client:
 		self.USERNAME = username
 		self.IP = ip
 		self.PORT = port
+		self.key = None
 
 	def connect_to_server(self, reconnect=False):
 
@@ -32,12 +33,12 @@ class Client:
 			self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.client_socket.connect((self.IP, self.PORT))
 			# self.client_socket.setblocking(False)
-			print("Client connected to the server")		
+			print("Successfully connected to the server")		
 
 			return True
 
 		except ConnectionRefusedError:
-			print("Client could not connect to server...")
+			print("Failure to connect to server...")
 			if not reconnect:
 				print("Connection Aborted")
 				exit(0)
@@ -60,30 +61,64 @@ class Client:
 				sys.stdout.flush()
 
 
-	def verify_login(self, login_info):
+	def verify_login(self, user, password):
 
 		"""
 		Returns true if valid login attempt
+
+		Gives client a key
 		"""
 
+		dict = {"type":"login_check", "src":user, "dest":"server", "data":password, "is_encrypted":False}
+
 		# send login package to server
-		support.send_message(login_info, self.client_socket, HEADER_SIZE)
+		support.send_message(dict, self.client_socket, HEADER_SIZE)
 
 		# wait to hear back from server
 		#TODO add some sort of timeout here
+		#TODO recieve key from server
 		data = support.recieve_message(self.client_socket, HEADER_SIZE)
 		dict = support.unpackage_message(data['data'])
 
 		return dict["data"]
 
 
-	def send_message(self, dict):
-		
+	def create_account(self, username, password):
+
 		"""
-		Creates json from dictionary, then sends json to the server
+		Creates new user account and assigns user a key
 		"""
 
-		self.client_socket.sendall(support.package_message(dict, HEADER_SIZE))
+		dict = {"type":"account_creation", "src":username, "dest":"server", "data":password, "is_encrypted":False}
+
+		support.send_message(dict, self.client_socket, HEADER_SIZE)
+
+		# wait to hear back from server
+		#TODO add some sort of timeout here
+		#TODO recieve key from server
+		data = support.recieve_message(self.client_socket, HEADER_SIZE)
+		dict = support.unpackage_message(data['data'])
+
+		return dict['data']
+
+
+	def send_message(self, dest, message):
+
+		"""
+		Recieves the destination and the message from app.py
+		"""
+
+		dict = {"type":"message", "src":self.USERNAME, "dest":dest, "data":message, "is_encrypted":True}
+		support.send_message(dict, self.client_socket, HEADER_SIZE)
+
+
+	def get_messages(self, user):
+
+		"""
+		Retrieves messages with a given user from database and returns array or sm idk yet
+		"""
+
+		
 
 
 	def wait_and_recieve(self):
@@ -109,4 +144,8 @@ class Client:
 
 			# Perform appropriate action
 			if(type == "message"):
-				print(f"user recieved a message from {src}: {message}")
+				print(f"New message from {src}!")
+
+			if(type == "key"):
+				print()
+				# self.key = whatever
