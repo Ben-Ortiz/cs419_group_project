@@ -10,6 +10,25 @@ HEADER_SIZE = 10
 
 class App:
 
+    def __init__(self) -> None:
+		print("hello")
+
+    def main(self):
+
+        while(True):
+            x = input("Login or create new account? ")
+            if "login".startswith(x.lower()) or "log in".startswith(x.lower()):
+                action = self.login
+                break
+            if "create new account".startswith(x.lower()) or "new account".startswith(x.lower()):
+                action = self.new_account
+                break
+            else:
+                print("\nInvalid inpout, please try again.\n")
+
+        action(self)
+
+
     def connect(self):
 
         print("\n")
@@ -64,10 +83,18 @@ class App:
         while(True):
             self.user = input("Username: ")
             password = input("Password: ")
-            self.ip = input("IP address: ")
-            self.port = int(input("Port: "))
+            #self.ip = input("IP address: ")
+            #self.port = int(input("Port: "))
+            self.ip = "10.0.0.63"
+            self.port = 8888
 
-            if not self.connect(self): continue
+            if not self.connect(self):
+                retry = input("Try again? (y/n) ")
+                if retry.lower() == 'y':
+                    continue
+                if retry.lower() == 'n':
+
+                continue
 
             if self.client.create_account(self.user, password):
                 print("Successfully created account")
@@ -83,12 +110,16 @@ class App:
 
         print("\n")
 
+        admin = self.user == "Admin"
+
         # Thread to recieve any incoming messages
         t = Thread(target=self.client.wait_and_recieve)
         t.start()
 
         print("Message a user: message")
         print("Show conversation with a user: conversation")
+        if admin:
+            print("Remove a user: remove")
         print("Logout: logout")
 
         while(True):
@@ -99,8 +130,14 @@ class App:
             if "conversation".startswith(x.lower()):
                 self.show_messages(self)
 
+            if "remove".startswith(x.lower()) and admin:
+                self.remove_user(self)
+
             if "logout".startswith(x.lower()) or "log out".startswith(x.lower()):
                 self.logout(self)
+
+            else:
+                print("Command undefined.")
 
 
     def message_user(self):
@@ -113,7 +150,11 @@ class App:
     def show_messages(self):
         user = input("See conversation with: ")
 
-        
+        #TODO finish this
+
+
+    def remove_user(self):
+        return True
 
 
     def logout(self):
@@ -125,15 +166,6 @@ if __name__ == "__main__":
     # clear screen
     os.system('cls' if os.name == 'nt' else 'clear')
 
-    while(True):
-        x = input("Login or create new account? ")
-        if "login".startswith(x.lower()) or "log in".startswith(x.lower()):
-            action = App.login
-            break
-        if "new account".startswith(x.lower()):
-            action = App.new_account
-            break
-        else:
-            print("\nInvalid inpout, please try again.\n")
+    action = App.main
 
-    action(App)
+    App.main(App)

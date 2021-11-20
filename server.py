@@ -65,10 +65,10 @@ if __name__ == "__main__":
                     key = None
 
                     #TODO add new account to accounts.csv
-                    with open('accounts.csv', mode='a') as accounts:
+                    with open('data/accounts.csv', mode='a') as accounts:
                         writer = csv.writer(accounts, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-                        writer.writerow(user, password, key)
+                        writer.writerow([user, password, key])
                         accounts.close()
 
                     connections[client_socket] = user
@@ -132,7 +132,7 @@ if __name__ == "__main__":
             if dict["type"] == "message":
                 # Store message in conversations.csv
                 # Open conversations.csv in append mode
-                with open('conversations.csv', mode='a') as conversations:
+                with open('data/conversations.csv', mode='a') as conversations:
                     writer = csv.writer(conversations, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
                     writer.writerow([dict['src'], dict['dest'], dict['data']])
@@ -146,7 +146,7 @@ if __name__ == "__main__":
 
                 # Otherwise store message in messages.csv
                 else:
-                    with open('messages.csv', mode='a') as messages:
+                    with open('data/messages.csv', mode='a') as messages:
                         writer = csv.writer(messages, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
                         writer.writerow([dict['src'], dict['dest'], dict['data']])
