@@ -1,6 +1,7 @@
 #custom ignore
 .vscode
 .ipynb_checkpoints
+messenger/testing
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

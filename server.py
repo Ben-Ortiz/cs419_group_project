@@ -24,8 +24,8 @@ if __name__ == "__main__":
     print("Waiting for client request..")
     server_socket.listen()
 
-    connections = {server_socket: 'server'} # active connections
-    active_clients = {} # active users
+    connections = {server_socket: 'server'} # active connections, key=socket, value=username
+    active_clients = {} # active users, key=username, value=socket
 
 
     while True:
@@ -45,9 +45,9 @@ if __name__ == "__main__":
                 client_socket, client_address = server_socket.accept()
                 data = support.recieve_message(client_socket, HEADER_SIZE)
                 header = support.unpackage_message(data['header'])
-                lib = support.unpackage_message(data['data'])
-                user = lib["src"]
-                password = lib["data"]
+                dict = support.unpackage_message(data['data'])
+                user = dict["src"]
+                password = dict["data"]
 
                 accounts = pd.read_csv("data/accounts.csv", index_col=0)
                 user_check = user in accounts.index
@@ -86,30 +86,30 @@ if __name__ == "__main__":
                 del connections[conn]
                 continue
             header = support.unpackage_message(data['header'])
-            lib = support.unpackage_message(data['data'])
-            recipient = lib["dest"]
+            dict = support.unpackage_message(data['data'])
+            recipient = dict["dest"]
 
-            if lib["type"] == "message":
+            if dict["type"] == "message":
                 # Store message in conversations.csv
                 # Open conversations.csv in append mode
                 with open('conversations.csv', mode='a') as conversations:
                     writer = csv.writer(conversations, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-                    writer.writerow([lib['src'], lib['dest'], lib['data']])
+                    writer.writerow([dict['src'], dict['dest'], dict['data']])
                     conversations.close()
 
                 # Search connections to see if recipient user is active
                 if recipient in active_clients:
                     # Send message to user
-                    print(f"Sending message from {lib['src']} to {recipient}")
-                    support.send_message(lib, active_clients[recipient], HEADER_SIZE)
+                    print(f"Sending message from {dict['src']} to {recipient}")
+                    support.send_message(dict, active_clients[recipient], HEADER_SIZE)
 
                 # Otherwise store message in messages.csv
                 else:
                     with open('messages.csv', mode='a') as messages:
                         writer = csv.writer(messages, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-                        writer.writerow([lib['src'], lib['dest'], lib['data']])
+                        writer.writerow([dict['src'], dict['dest'], dict['data']])
                         messages.close()
 
                 continue
