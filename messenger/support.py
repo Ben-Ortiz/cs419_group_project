@@ -13,13 +13,13 @@ def clear():
         system('clear') # Linux/Mac OS Command
 
 
-def package_message(lib, HEADER_SIZE):
+def package_message(dict, HEADER_SIZE):
 
     """
-    Takes a python library containing message paramaters and returns a json object that can be sent across sockets
+    Takes a python dictionary containing message paramaters and returns a json object that can be sent across sockets
     """
 
-    package = json.dumps(lib).encode("utf-8")
+    package = json.dumps(dict).encode("utf-8")
     header = f"{len(package):<{HEADER_SIZE}}".encode("utf-8")
     message = header + package
 
@@ -29,19 +29,19 @@ def package_message(lib, HEADER_SIZE):
 def unpackage_message(package):
 
     """
-    Takes a json object and returns a python library
+    Takes a json object and returns a python dictionary
     """
 
     return json.loads(package.decode("utf-8"))
 
 
-def send_message(lib, sock, HEADER_SIZE):
+def send_message(dict, sock, HEADER_SIZE):
 		
     """
-    Creates json object from library, then sends json across the socket
+    Creates json object from dictionary, then sends json across the socket
     """
 
-    sock.sendall(package_message(lib, HEADER_SIZE))
+    sock.sendall(package_message(dict, HEADER_SIZE))
 
 
 def recieve_message(sock, HEADER_SIZE):
@@ -49,7 +49,7 @@ def recieve_message(sock, HEADER_SIZE):
     """
     Recieves a single message from a socket
     
-    Returns the package header and the message library as json objects
+    Returns the package header and the message dictionary as json objects
     """
 
     try:

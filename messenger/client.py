@@ -72,18 +72,18 @@ class Client:
 		# wait to hear back from server
 		#TODO add some sort of timeout here
 		data = support.recieve_message(self.client_socket, HEADER_SIZE)
-		lib = support.unpackage_message(data['data'])
+		dict = support.unpackage_message(data['data'])
 
-		return lib["data"]
+		return dict["data"]
 
 
-	def send_message(self, lib):
+	def send_message(self, dict):
 		
 		"""
-		Creates json from library, then sends json to the server
+		Creates json from dictionary, then sends json to the server
 		"""
 
-		self.client_socket.sendall(support.package_message(lib, HEADER_SIZE))
+		self.client_socket.sendall(support.package_message(dict, HEADER_SIZE))
 
 
 	def wait_and_recieve(self):
@@ -94,18 +94,18 @@ class Client:
 
 		while True:
 			
-			# Get new message and convert to python library
+			# Get new message and convert to python dictionary
 			data = support.recieve_message(self.client_socket, HEADER_SIZE)
 			if not data:
 				print("Disconnected by server")
 				exit()
-			lib = support.unpackage_message(data['data'])
+			dict = support.unpackage_message(data['data'])
 
-			# Parse the library
-			type = lib["type"]
-			src = lib["src"]
-			dest = lib["dest"]
-			message = lib["data"]
+			# Parse the dictionary
+			type = dict["type"]
+			src = dict["src"]
+			dest = dict["dest"]
+			message = dict["data"]
 
 			# Perform appropriate action
 			if(type == "message"):
