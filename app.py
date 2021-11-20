@@ -10,15 +10,32 @@ HEADER_SIZE = 10
 
 class App:
 
+    def __init__(self) -> None:
+        self.stack = [self.main]
+        self.force_logout = False
+
+        # clear screen
+        os.system('cls' if os.name == 'nt' else 'clear')
+
+        while(self.stack):
+            if self.force_logout:
+                # Reset stack
+                self.stack = [self.logout]
+
+            # Perform action of last item on stack
+            action = self.stack.pop()
+            action()
+
+
     def main(self):
 
         while(True):
             x = input("Login or create new account? ")
             if "login".startswith(x.lower()) or "log in".startswith(x.lower()):
-                stack.append(self.login)
+                self.stack.append(self.login)
                 break
             if "create new account".startswith(x.lower()) or "new account".startswith(x.lower()):
-                stack.append(self.new_account)
+                self.stack.append(self.new_account)
                 break
             else:
                 print("\nInvalid inpout, please try again.\n")
@@ -55,14 +72,14 @@ class App:
             self.ip = "10.0.0.63"
             self.port = 8888
 
-            if not self.connect(self):
+            if not self.connect():
                 while(True):
                     retry = input("Try again? (y/n) ")
                     if retry == 'y':
                         break
                     if retry == 'n':
                         print("\n")
-                        stack.append(self.main)
+                        self.stack.append(self.main)
                         return
                     else:
                         print("Invalid input")
@@ -81,15 +98,15 @@ class App:
                         break
                     if retry == 'n':
                         print("\n")
-                        stack.append(self.main)
+                        self.stack.append(self.main)
                         return
                     else:
                         print("Invalid input")
 
                 continue
     
-        stack.append(self.home)
-        stack.append(self.recieve_messages)
+        self.stack.append(self.home)
+        self.stack.append(self.start_thread)
 
 
     def new_account(self):
@@ -104,14 +121,14 @@ class App:
             self.ip = "10.0.0.63"
             self.port = 8888
 
-            if not self.connect(self):
+            if not self.connect():
                 while(True):
                     retry = input("Try again? (y/n) ")
                     if retry == 'y':
                         break
                     if retry == 'n':
                         print("\n")
-                        stack.append(self.main)
+                        self.stack.append(self.main)
                         return
                     else:
                         print("Invalid input")
@@ -128,21 +145,26 @@ class App:
                         break
                     if retry == 'n':
                         print("\n")
-                        stack.append(self.main)
+                        self.stack.append(self.main)
                         return
                     else:
                         print("Invalid input")
 
                 continue
 
-        stack.append(self.home)
-        stack.append(self.recieve_messages)
+        self.stack.append(self.home)
+        self.stack.append(self.start_thread)
+
+
+    def start_thread(self):
+        self.t = Thread(target=self.recieve_messages)
+        self.t.start()
 
 
     def recieve_messages(self):
-        # Thread to recieve any incoming messages
-        t = Thread(target=self.client.wait_and_recieve)
-        t.start()
+        self.client.wait_and_recieve()
+
+        self.force_logout = True
 
 
     def home(self):
@@ -161,22 +183,22 @@ class App:
         while(True):
             x = input()
             if "message".startswith(x.lower()):
-                stack.append(self.home)
-                stack.append(self.message_user)
+                self.stack.append(self.home)
+                self.stack.append(self.message_user)
                 break
 
             if "conversation".startswith(x.lower()):
-                stack.append(self.home)
-                stack.append(self.show_messages)
+                self.stack.append(self.home)
+                self.stack.append(self.show_messages)
                 break
 
             if "remove".startswith(x.lower()) and admin:
-                stack.append(self.home)
-                stack.append(self.remove_user)
+                self.stack.append(self.home)
+                self.stack.append(self.remove_user)
                 break
 
             if "logout".startswith(x.lower()) or "log out".startswith(x.lower()):
-                stack.append(self.logout)
+                self.stack.append(self.logout)
                 break
 
             else:
@@ -201,16 +223,19 @@ class App:
 
 
     def logout(self):
-        return True
+
+        print("Logging out...\n")
+
+        #TODO send message to server to log user out
+
+        # Join thread
+        if self.t.is_alive():
+            self.t.join()
+
+        self.stack.append(self.main)
+        self.force_logout = False
 
 
     
 if __name__ == "__main__":
-    # clear screen
-    os.system('cls' if os.name == 'nt' else 'clear')
-
-    stack = [App.main]
-    while(stack):
-        #Perform action of last item on stack
-        action = stack.pop()
-        action(App)
+    app = App()

@@ -1,5 +1,3 @@
-# from _typeshed import SupportsItemAccess
-# from os import SCHED_SPORADIC
 import socket
 import select
 import sys
@@ -152,10 +150,8 @@ class Client:
 
 			# Perform appropriate action
 			if(type == "message"):
-				print(f"New message from {src}: {message}")
+				print(f"New message from {src}: {message}\n")
 
 			if(type == "disconnect"):
 				print("This account has been deleted by the admin.")
 				break
-
-		# Log out
