@@ -80,7 +80,11 @@ class Client:
 		data = support.recieve_message(self.client_socket, HEADER_SIZE)
 		dict = support.unpackage_message(data['data'])
 
-		return dict["data"]
+		if not dict['data']: return False
+
+		self.key = dict['data']
+
+		return True
 
 
 	def create_account(self, username, password):
@@ -99,7 +103,11 @@ class Client:
 		data = support.recieve_message(self.client_socket, HEADER_SIZE)
 		dict = support.unpackage_message(data['data'])
 
-		return dict['data']
+		if not dict['data']: return False
+
+		self.key = dict['data']
+
+		return True
 
 
 	def send_message(self, dest, message):
@@ -118,7 +126,7 @@ class Client:
 		Retrieves messages with a given user from database and returns array or sm idk yet
 		"""
 
-		
+
 
 
 	def wait_and_recieve(self):
@@ -133,7 +141,7 @@ class Client:
 			data = support.recieve_message(self.client_socket, HEADER_SIZE)
 			if not data:
 				print("Disconnected by server")
-				exit()
+				break
 			dict = support.unpackage_message(data['data'])
 
 			# Parse the dictionary
@@ -144,8 +152,10 @@ class Client:
 
 			# Perform appropriate action
 			if(type == "message"):
-				print(f"New message from {src}!")
+				print(f"New message from {src}: {message}")
 
-			if(type == "key"):
-				print()
-				# self.key = whatever
+			if(type == "disconnect"):
+				print("This account has been deleted by the admin.")
+				break
+
+		# Log out

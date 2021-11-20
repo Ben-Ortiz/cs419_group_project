@@ -1,9 +1,9 @@
 import socket
 import select
-import csv
 import sys
 import pandas as pd
 import support
+import encrypt_decrypt_final as ed
 
 
 
@@ -61,21 +61,16 @@ if __name__ == "__main__":
 
                         continue
 
-                    #TODO generate key
-                    key = None
-
-                    #TODO add new account to accounts.csv
-                    with open('data/accounts.csv', mode='a') as accounts:
-                        writer = csv.writer(accounts, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-
-                        writer.writerow([user, password, key])
-                        accounts.close()
+                    key = ed.gen_key()
+                    accounts.append([user, password, key])
+                    accounts.to_csv("data/accounts.csv", sep='\t')
+                    #accounts.to_csv("data/accounts.csv", sep='\t', encoding='utf-8')
 
                     connections[client_socket] = user
                     active_clients[user] = client_socket
 
                     print(f"Accepted new connection from {client_address[0]}:{client_address[1]} username {user}")
-                    success = {"type":"account_creation", "src":"server", "dest":"user", "data":True, "is_encrypted":False}
+                    success = {"type":"account_creation", "src":"server", "dest":"user", "data":key, "is_encrypted":False}
                     packet = support.package_message(success, HEADER_SIZE)
                     client_socket.send(packet)
 
@@ -102,13 +97,14 @@ if __name__ == "__main__":
 
                         continue
 
-                    #TODO get key from accounts.csv
+                    #TODO figure out how to use panda dataframes
+                    key = None
 
                     connections[client_socket] = user
                     active_clients[user] = client_socket
 
                     print(f"Accepted new connection from {client_address[0]}:{client_address[1]} username {user}")
-                    success = {"type":"login_check", "src":"server", "dest":"user", "data":True, "is_encrypted":False}
+                    success = {"type":"login_check", "src":"server", "dest":"user", "data":key, "is_encrypted":False}
                     packet = support.package_message(success, HEADER_SIZE)
                     client_socket.send(packet)
 
@@ -127,32 +123,43 @@ if __name__ == "__main__":
                 continue
             header = support.unpackage_message(data['header'])
             dict = support.unpackage_message(data['data'])
-            recipient = dict["dest"]
 
-            if dict["type"] == "message":
+            if dict['type'] == "message":
                 # Store message in conversations.csv
-                # Open conversations.csv in append mode
-                with open('data/conversations.csv', mode='a') as conversations:
-                    writer = csv.writer(conversations, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-
-                    writer.writerow([dict['src'], dict['dest'], dict['data']])
-                    conversations.close()
+                conversations = pd.read_csv("data/conversations.csv", index_col=0)
+                conversations.append([dict['dest'], dict['src'], dict['data']])
 
                 # Search connections to see if recipient user is active
-                if recipient in active_clients:
+                if dict["dest"] in active_clients:
                     # Send message to user
-                    print(f"Sending message from {dict['src']} to {recipient}")
-                    support.send_message(dict, active_clients[recipient], HEADER_SIZE)
+                    print(f"Sending message from {dict['src']} to {dict['dest']}")
+                    support.send_message(dict, active_clients[dict['dest']], HEADER_SIZE)
 
                 # Otherwise store message in messages.csv
                 else:
-                    with open('data/messages.csv', mode='a') as messages:
-                        writer = csv.writer(messages, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-
-                        writer.writerow([dict['src'], dict['dest'], dict['data']])
-                        messages.close()
+                    messages = pd.read_csv("data/messages.csv", index_col=0)
+                    messages.append([dict['dest'], dict['src'], dict['data']])
 
                 continue
+
+            if dict['type'] == "delete_user":
+                #TODO Send package to user that will disconnect them
+
+
+                # Remove user from active sockets
+                if dict["data"] in active_clients:
+                    print(f"Removing user {dict['src']}")
+                    del connections[active_clients[dict["data"]]]
+                    del active_clients[dict["data"]]
+
+                # Remove user from accounts dataframe
+                #TODO idk how to do this
+
+            if dict['type'] == "reset":
+                #TODO Send package to ever user that will disconnect them
+
+                connections = {server_socket: 'server'}
+                active_clients = {}
 
         for conn in err_sockets:
             del active_clients[connections[conn]]

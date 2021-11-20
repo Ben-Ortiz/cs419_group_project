@@ -10,23 +10,18 @@ HEADER_SIZE = 10
 
 class App:
 
-    def __init__(self) -> None:
-		print("hello")
-
     def main(self):
 
         while(True):
             x = input("Login or create new account? ")
             if "login".startswith(x.lower()) or "log in".startswith(x.lower()):
-                action = self.login
+                stack.append(self.login)
                 break
             if "create new account".startswith(x.lower()) or "new account".startswith(x.lower()):
-                action = self.new_account
+                stack.append(self.new_account)
                 break
             else:
                 print("\nInvalid inpout, please try again.\n")
-
-        action(self)
 
 
     def connect(self):
@@ -70,10 +65,22 @@ class App:
                 print("Successfully logged in")
                 break
             else:
-                print("Invalid login attempt, try again")
+                while(True):
+                    retry = input("Invalid login attempt, try again? (y/n) ")
+                    if retry == 'y':
+                        break
+                    if retry == 'n':
+                        #TODO go back to home
+                        break
+                    else:
+                        print("Invalid input")
+                        break
+
                 continue
 
-        self.home(self)
+                
+
+        stack.append(self.home)
 
 
     def new_account(self):
@@ -89,10 +96,13 @@ class App:
             self.port = 8888
 
             if not self.connect(self):
+                """
                 retry = input("Try again? (y/n) ")
                 if retry.lower() == 'y':
                     continue
                 if retry.lower() == 'n':
+                """
+                print("try again")
 
                 continue
 
@@ -103,7 +113,7 @@ class App:
                 print("Could not create account. Your username may already exist.")
                 continue
 
-        self.home(self)
+        stack.append(self.home)
 
 
     def home(self):
@@ -120,21 +130,26 @@ class App:
         print("Show conversation with a user: conversation")
         if admin:
             print("Remove a user: remove")
+            print("Reset all accounts: reset")
         print("Logout: logout")
 
         while(True):
             x = input()
             if "message".startswith(x.lower()):
-                self.message_user(self)
+                stack.append(self.message_user)
+                break
 
             if "conversation".startswith(x.lower()):
-                self.show_messages(self)
+                stack.append(self.show_messages)
+                break
 
             if "remove".startswith(x.lower()) and admin:
-                self.remove_user(self)
+                stack.append(self.remove_user)
+                break
 
             if "logout".startswith(x.lower()) or "log out".startswith(x.lower()):
-                self.logout(self)
+                stack.append(self.logout)
+                break
 
             else:
                 print("Command undefined.")
@@ -166,6 +181,7 @@ if __name__ == "__main__":
     # clear screen
     os.system('cls' if os.name == 'nt' else 'clear')
 
-    action = App.main
-
-    App.main(App)
+    stack = [App.main]
+    while(stack):
+        #Perform action of last item on stack
+        stack[-1](App)
