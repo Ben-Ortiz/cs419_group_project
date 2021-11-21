@@ -105,7 +105,7 @@ if __name__ == "__main__":
                     active_clients[user] = client_socket
 
                     print(f"Accepted new connection from {client_address[0]}:{client_address[1]} username {user}")
-                    success = {"type":"login_check", "src":"server", "dest":"user", "data":int(key.item()), "is_encrypted":False}
+                    success = {"type":"login_check", "src":"server", "dest":"user", "data":True, "is_encrypted":False}
                     packet = support.package_message(success, HEADER_SIZE)
                     client_socket.send(packet)
 

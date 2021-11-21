@@ -3,6 +3,7 @@ import select
 import sys
 import support
 import encrypt_decrypt_final as ed
+import pandas as pd
 
 
 
@@ -81,7 +82,8 @@ class Client:
 
 		if not dict['data']: return False
 
-		self.key = dict['data']
+		accounts = pd.read_csv("client_data/accounts.csv")
+		self.key = int(accounts['key'].loc[(accounts['username'] == self.USERNAME)].item())
 
 		return True
 
@@ -105,6 +107,11 @@ class Client:
 		if not dict['data']: return False
 
 		self.key = dict['data']
+
+		accounts = pd.read_csv("client_data/accounts.csv")
+		new_acc = {'username' : self.USERNAME, 'password' : password, 'key' : self.key}
+		accounts = accounts.append(new_acc, ignore_index=True)
+		accounts.to_csv("client_data/accounts.csv", index = False)
 
 		return True
 
