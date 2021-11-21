@@ -2,6 +2,7 @@ import socket
 import select
 import sys
 import support
+import encrypt_decrypt_final as ed
 
 
 
@@ -114,7 +115,10 @@ class Client:
 		Recieves the destination and the message from app.py
 		"""
 
-		dict = {"type":"message", "src":self.USERNAME, "dest":dest, "data":message, "is_encrypted":True}
+		m = ed.encrypt(message, self.key, True)
+		#print(f"key used to encrypt message: {self.key}")
+
+		dict = {"type":"message", "src":self.USERNAME, "dest":dest, "data":m, "is_encrypted":True}
 		support.send_message(dict, self.client_socket, HEADER_SIZE)
 
 
@@ -124,8 +128,11 @@ class Client:
 		Retrieves messages with a given user from database and returns array or sm idk yet
 		"""
 
+		dict = {"type":"get_convo", "src":self.USERNAME, "dest":"server", "data":user, "is_encrypted":False}
 
+		support.send_message(dict, self.client_socket, HEADER_SIZE)
 
+		return True
 
 	def wait_and_recieve(self):
 
@@ -146,12 +153,18 @@ class Client:
 			type = dict["type"]
 			src = dict["src"]
 			dest = dict["dest"]
-			message = dict["data"]
 
 			# Perform appropriate action
 			if(type == "message"):
+				message = ed.decrypt(dict["data"], self.key, True)
 				print(f"New message from {src}: {message}\n")
 
 			if(type == "disconnect"):
 				print("This account has been deleted by the admin.")
 				break
+
+			if(type == 'conversation_response'):
+
+				m = dict['data']
+
+				print(f'Conversation: \n {m}')

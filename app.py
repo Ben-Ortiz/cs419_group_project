@@ -69,8 +69,8 @@ class App:
             password = input("Password: ")
             #self.ip = input("IP address: ")
             #self.port = int(input("Port: "))
-            self.ip = "10.0.0.63"
-            self.port = 8888
+            self.ip = "192.168.1.32"
+            self.port = 8887
 
             if not self.connect():
                 while(True):
@@ -118,8 +118,8 @@ class App:
             password = input("Password: ")
             #self.ip = input("IP address: ")
             #self.port = int(input("Port: "))
-            self.ip = "10.0.0.63"
-            self.port = 8888
+            self.ip = "192.168.1.32"
+            self.port = 8887
 
             if not self.connect():
                 while(True):
@@ -215,7 +215,9 @@ class App:
     def show_messages(self):
         user = input("See conversation with: ")
 
-        #TODO finish this
+        self.client.get_messages(user)
+
+        self.stack.append(self.home)
 
 
     def remove_user(self):

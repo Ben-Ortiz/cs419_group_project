@@ -1,1 +1,10 @@
 to,from,message
+rjphantom,jayko,hello from jayko
+jayko,rjphantom,hello from rjphantom
+rjphantom,rjphantom,how are you doing
+jayko,rjphantom,how are you doing
+rjphantom,jayko,how are you doing rj
+rjphantom,bigc,hello from big c
+jayko,bigc,hello jayko from big c
+bigc,jayko,hello bigc from jayko
+bigc,rjphantom,hello bigc from rjphantom
