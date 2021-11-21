@@ -10,7 +10,7 @@ PRINTABLE_CHARS = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXY
 base64_table = (string.ascii_uppercase+string.ascii_lowercase+string.digits+'+/')
 
 #maximum allowed message length
-MAX_MSG_LEN = 500
+MAX_MSG_LEN = 1000
 #the length of every ct
 MAX_CT_LEN = 2 * (MAX_MSG_LEN + 12) + 12
 
@@ -289,12 +289,12 @@ def main():
         total_succeses = 0
         total_errors = 0
 
-        for i in range(500):
+        for i in range(1000):
 
             errors = 0
             succeses = 0
 
-            for __ in range(10):
+            for __ in range(1):
                 m = gen_rand_msg(i)
                 key = gen_key()
                 ct = encrypt(m, key, True)
@@ -304,7 +304,7 @@ def main():
                 else:
                     errors += 1
 
-            if succeses == 10:
+            if succeses == 1:
                 total_succeses += 1
             else:
                 total_errors += 1

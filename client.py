@@ -165,6 +165,6 @@ class Client:
 
 			if(type == 'conversation_response'):
 
-				m = dict['data']
+				m = ed.decrypt(dict['data'], self.key, True)
 
 				print(f'Conversation: \n {m}')
