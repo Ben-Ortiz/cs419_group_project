@@ -186,17 +186,21 @@ if __name__ == "__main__":
                 msgs['decrypted_msg'] = msgs.apply(lambda x : '<' + x['from'] + '>' + x['decrypted_msg'] if x['from'] == user2 else '<you>' + x['decrypted_msg'], axis = 1)
 
                 m_list = list(msgs['decrypted_msg'])
-                out_string = ''
+                curr_out_string = ''
+                prev_out_string = ''
                 m_count = 0
 
                 for m in m_list:
-                    out_string += m + '\n'
-                    m_count += 1
-                    if m_count == 100:
+                    prev_out_string = curr_out_string
+                    curr_out_string += m
+
+                    if len(curr_out_string) > 1000:
                         break
 
+                encrypted_out_string = ed.encrypt(prev_out_string, int(src_key.item()), True)
+
                 print(f"Sending conversation between {dict['src']} and {dict['data']} to {dict['src']}")
-                new_packet = {"type":"conversation_response", "src":"server", "dest": dict['src'], "data": out_string, "is_encrypted":False}
+                new_packet = {"type":"conversation_response", "src":"server", "dest": dict['src'], "data": encrypted_out_string, "is_encrypted":False}
                 support.send_message(new_packet, active_clients[new_packet['dest']], HEADER_SIZE)
 
                 
