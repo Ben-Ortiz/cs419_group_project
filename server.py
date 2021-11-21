@@ -195,9 +195,10 @@ if __name__ == "__main__":
                     curr_out_string += m
 
                     if len(curr_out_string) > 1000:
+                        curr_out_string = prev_out_string
                         break
 
-                encrypted_out_string = ed.encrypt(prev_out_string, int(src_key.item()), True)
+                encrypted_out_string = ed.encrypt(curr_out_string, int(src_key.item()), True)
 
                 print(f"Sending conversation between {dict['src']} and {dict['data']} to {dict['src']}")
                 new_packet = {"type":"conversation_response", "src":"server", "dest": dict['src'], "data": encrypted_out_string, "is_encrypted":False}

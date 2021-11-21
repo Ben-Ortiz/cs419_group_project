@@ -167,4 +167,9 @@ class Client:
 
 				m = ed.decrypt(dict['data'], self.key, True)
 
-				print(f'Conversation: \n {m}')
+				l = m.split('<')
+
+				print(f'Conversation:')
+
+				for x in l:
+					print(f'{x}\n')
