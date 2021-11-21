@@ -70,7 +70,7 @@ class App:
             #self.ip = input("IP address: ")
             #self.port = int(input("Port: "))
             self.ip = "192.168.1.32"
-            self.port = 8887
+            self.port = 8886
 
             if not self.connect():
                 while(True):
@@ -119,7 +119,7 @@ class App:
             #self.ip = input("IP address: ")
             #self.port = int(input("Port: "))
             self.ip = "192.168.1.32"
-            self.port = 8887
+            self.port = 8886
 
             if not self.connect():
                 while(True):

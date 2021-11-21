@@ -5,7 +5,7 @@ import numpy as np
 
 #string of all printable characters
 #PRINTABLE_CHARS = string.printable
-PRINTABLE_CHARS = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`~!@#$%^&*()_+-=[];:<>.?|/\"\'{} "
+PRINTABLE_CHARS = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`~!@#$%^&*()_+-=[];:<>.?|/\"\'{}, "
 #base64 character table
 base64_table = (string.ascii_uppercase+string.ascii_lowercase+string.digits+'+/')
 

@@ -129,6 +129,7 @@ if __name__ == "__main__":
                 accounts = pd.read_csv("data/accounts.csv")
                 src_key = accounts['key'].loc[(accounts['username'] == dict['src'])]
                 dest_key = accounts['key'].loc[(accounts['username'] == dict['dest'])]
+                convo_msg = dict['data']
 
                 decrypted_source = ed.decrypt(dict['data'], int(src_key.item()), True)
                 encrypted_dest = ed.encrypt(decrypted_source, int(dest_key.item()), True)
@@ -136,7 +137,7 @@ if __name__ == "__main__":
 
                 # Store message in conversations.csv
                 conversations = pd.read_csv("data/conversations.csv")
-                new_msg = {'to' : dict['dest'], 'from' : dict['src'], 'message' : decrypted_source}
+                new_msg = {'to' : dict['dest'], 'from' : dict['src'], 'message' : convo_msg}
                 conversations = conversations.append(new_msg, ignore_index=True)
                 conversations.to_csv("data/conversations.csv", index = False)
 
@@ -173,14 +174,18 @@ if __name__ == "__main__":
                 active_clients = {}
 
             if dict['type'] == 'get_convo':
+                accounts = pd.read_csv("data/accounts.csv")
+                src_key = accounts['key'].loc[(accounts['username'] == dict['src'])]
+                dest_key = accounts['key'].loc[(accounts['username'] == dict['data'])]
                 curr_user = dict['src']
                 user2 = dict['data']
                 conversations = pd.read_csv("data/conversations.csv")
                 msgs = conversations.loc[ ( conversations['to'] == curr_user) & (conversations['from'] == user2 ) | (conversations['to'] == user2) & (conversations['from'] == curr_user)]
 
-                msgs['message'] = msgs.apply(lambda x : '<' + x['from'] + '>' + x['message'] if x['from'] == user2 else '<you>' + x['message'], axis = 1)
+                msgs['decrypted_msg'] = msgs.apply(lambda x : ed.decrypt(x['message'], int(src_key.item()), True) if x['from'] == curr_user else ed.decrypt(x['message'], int(dest_key.item()), True), axis = 1)
+                msgs['decrypted_msg'] = msgs.apply(lambda x : '<' + x['from'] + '>' + x['decrypted_msg'] if x['from'] == user2 else '<you>' + x['decrypted_msg'], axis = 1)
 
-                m_list = list(msgs['message'])
+                m_list = list(msgs['decrypted_msg'])
                 out_string = ''
                 m_count = 0
 
