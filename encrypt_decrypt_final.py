@@ -4,7 +4,8 @@ import string
 import numpy as np
 
 #string of all printable characters
-PRINTABLE_CHARS = string.printable
+#PRINTABLE_CHARS = string.printable
+PRINTABLE_CHARS = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`~!@#$%^&*()_+-=[];:<>.?|/\"\'{} "
 #base64 character table
 base64_table = (string.ascii_uppercase+string.ascii_lowercase+string.digits+'+/')
 
@@ -53,7 +54,7 @@ def pad_ct(ct):
     
     s = ct
     while len(s) < MAX_CT_LEN - 12:
-        s += random.choice(string.printable)
+        s += random.choice(PRINTABLE_CHARS)
     return s
 
 #map string to values
@@ -104,7 +105,7 @@ def get_rand_key(n):
     k = ''
 
     for __ in range(0, n):
-        k += random.choice(string.printable)
+        k += random.choice(PRINTABLE_CHARS)
     return k
 
 #seeds the random number generator and generates the key used to encrypt the message
@@ -114,7 +115,7 @@ def get_key(n, s):
     key_num_list = []
 
     for __ in range(0, n + 1):
-        i = random.randint(0, 99)
+        i = random.randint(0, len(PRINTABLE_CHARS) - 1)
         key_num_list.append(i)
     
     return map_num_to_str(key_num_list)
@@ -123,7 +124,7 @@ def get_key(n, s):
 def gen_rand_msg(n):
     m = ''
     for __ in range(n):
-        m += random.choice(string.printable)
+        m += random.choice(PRINTABLE_CHARS)
     return m
 
 
@@ -134,7 +135,7 @@ def insert_rand_chars(m):
     new_m = ""
 
     for c in m:
-        new_char = random.choice(string.printable)
+        new_char = random.choice(PRINTABLE_CHARS)
         new_list.append(c + new_char)
 
     new_m = ''.join(new_list)
@@ -293,7 +294,7 @@ def main():
             errors = 0
             succeses = 0
 
-            for __ in range(1000):
+            for __ in range(10):
                 m = gen_rand_msg(i)
                 key = gen_key()
                 ct = encrypt(m, key, True)
@@ -303,7 +304,7 @@ def main():
                 else:
                     errors += 1
 
-            if succeses == 1000:
+            if succeses == 10:
                 total_succeses += 1
             else:
                 total_errors += 1
