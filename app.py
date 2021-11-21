@@ -215,7 +215,8 @@ class App:
     def show_messages(self):
         user = input("See conversation with: ")
 
-        self.client.get_messages(user)
+        msgs = self.client.get_messages(user)
+        print(f"Conversation with {user}:\n{msgs}")
 
         self.stack.append(self.home)
 

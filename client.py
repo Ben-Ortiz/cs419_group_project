@@ -3,6 +3,7 @@ import select
 import sys
 import support
 import encrypt_decrypt_final as ed
+import pandas as pd
 
 
 
@@ -128,11 +129,17 @@ class Client:
 		Retrieves messages with a given user from database and returns array or sm idk yet
 		"""
 
-		dict = {"type":"get_convo", "src":self.USERNAME, "dest":"server", "data":user, "is_encrypted":False}
+		conversations = pd.read_csv("client_data/conversations.csv")
+		msgs = conversations.loc[ ( conversations['to'] == self.USERNAME) & (conversations['from'] == user ) | (conversations['to'] == user) & (conversations['from'] == self.USERNAME)]
+		msgs['message'] = msgs.apply(lambda x : '<' + x['from'] + '>' + x['message'] if x['from'] == user else '<you>' + x['message'], axis = 1)
 
-		support.send_message(dict, self.client_socket, HEADER_SIZE)
+		m_list = list(msgs['message'])
+		out_string = ''
 
-		return True
+		for m in m_list:
+			out_string += m + '\n'
+
+		return out_string
 
 	def wait_and_recieve(self):
 
@@ -157,14 +164,12 @@ class Client:
 			# Perform appropriate action
 			if(type == "message"):
 				message = ed.decrypt(dict["data"], self.key, True)
+				conversations = pd.read_csv("client_data/conversations.csv")
+				new_msg = {'to' : dict['dest'], 'from' : dict['src'], 'message' : message}
+				conversations = conversations.append(new_msg, ignore_index=True)
+				conversations.to_csv("client_data/conversations.csv", index = False)
 				print(f"New message from {src}: {message}\n")
 
 			if(type == "disconnect"):
 				print("This account has been deleted by the admin.")
 				break
-
-			if(type == 'conversation_response'):
-
-				m = ed.decrypt(dict['data'], self.key, True)
-
-				print(f'Conversation: \n {m}')
