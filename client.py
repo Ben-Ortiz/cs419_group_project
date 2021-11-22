@@ -117,7 +117,7 @@ class Client:
 
 
 	def send_message(self, dest, message):
-
+		# TODO: add functionality to send error message when sending a message to a user that doesn't exist 
 		"""
 		Recieves the destination and the message from app.py
 		"""
