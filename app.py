@@ -1,9 +1,10 @@
 from client import Client
 from threading import Thread
 import os
+import sys
  
-
-
+IP = sys.argv[1]
+PORT = int(sys.argv[2])
 HEADER_SIZE = 10
 
 
@@ -69,8 +70,8 @@ class App:
             password = input("Password: ")
             #self.ip = input("IP address: ")
             #self.port = int(input("Port: "))
-            self.ip = "192.168.1.32"
-            self.port = 8885
+            self.ip = IP
+            self.port = PORT
 
             if not self.connect():
                 while(True):
@@ -118,8 +119,8 @@ class App:
             password = input("Password: ")
             #self.ip = input("IP address: ")
             #self.port = int(input("Port: "))
-            self.ip = "192.168.1.32"
-            self.port = 8885
+            self.ip = IP
+            self.port = PORT
 
             if not self.connect():
                 while(True):

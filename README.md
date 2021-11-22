@@ -16,7 +16,6 @@ open 1 terminal in administrator mode and type 'ipconfig'
 note your IPv4 address   
 use port 8888   
    
-   
 open 3 terminals     
 1 terminal is for the server    
 1 terminal is for the 1st client    
@@ -24,7 +23,7 @@ open 3 terminals
    
 in the server terminal, type "python server.py 'YOUR IPv4 address' 8888" to start the server   
    
-in the 1st client terminal type "python app.py"     
+in the 1st client terminal type "python app.py 'YOUR IPv4 address' 8888" to start the 1st client     
 type "create"
 enter a username (example: alice)
 enter a password (example: alice)
@@ -37,7 +36,7 @@ that message should show up on bob's terminal
 to see the conversation between alice and bob type "conversation"
 to logout type "logout"
 
-in the 1st client terminal type "python app.py"     
+in the 2nd client terminal type "python app.py 'YOUR IPv4 address' 8888" to start the 2nd client        
 type "create"
 enter a username (example: bob)
 enter a password (example: bob)
