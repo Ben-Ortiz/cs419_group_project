@@ -5,9 +5,6 @@ import sys
  
 IP = sys.argv[1]
 PORT = int(sys.argv[2])
-HEADER_SIZE = 10
-
-
 
 class App:
 
