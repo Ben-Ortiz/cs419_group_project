@@ -48,3 +48,7 @@ type your message (example: hi)
 that message should show up on alice's terminal   
 to see the conversation between alice and bob type "conversation"   
 to logout type "logout"   
+
+
+To use this from two different computers port forwarding has to be enabled for both computers.
+This may pose a security risk, so be warned. 
