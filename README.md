@@ -18,12 +18,12 @@ use port 8888
    
 open 3 terminals     
 1 terminal is for the server    
-1 terminal is for the 1st client    
-1 terminal is for the 2nd client    
+1 terminal is for the 1st app    
+1 terminal is for the 2nd app    
    
 in the server terminal, type "python server.py 'YOUR IPv4 address' 8888" to start the server   
    
-in the 1st client terminal type "python app.py 'YOUR IPv4 address' 8888" to start the 1st client     
+in the 1st app terminal type "python app.py 'YOUR IPv4 address' 8888" to start the 1st app     
 type "create"   
 enter a username (example: alice)   
 enter a password (example: alice)   
@@ -36,7 +36,7 @@ that message should show up on bob's terminal
 to see the conversation between alice and bob type "conversation"   
 to logout type "logout"   
    
-in the 2nd client terminal type "python app.py 'YOUR IPv4 address' 8888" to start the 2nd client        
+in the 2nd app terminal type "python app.py 'YOUR IPv4 address' 8888" to start the 2nd app          
 type "create"   
 enter a username (example: bob)   
 enter a password (example: bob)   
