@@ -99,7 +99,7 @@ if __name__ == "__main__":
 
                         continue
 
-                    key = accounts['key'].loc[(accounts['username'] == user)]
+                    key = accounts['key'].loc[(accounts['username'] == user)] #placeholder value so the rest of the code works
 
                     connections[client_socket] = user
                     active_clients[user] = client_socket
@@ -153,10 +153,6 @@ if __name__ == "__main__":
                     messages.append([dict['dest'], dict['src'], dict['data']])
 
                 continue
-
-            if dict['type'] == "logout":
-                # Send message back to client with logout type
-                support.send_message(dict, active_clients[dict['src']], HEADER_SIZE)
 
             if dict['type'] == "delete_user":
                 #TODO Send package to user that will disconnect them
