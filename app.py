@@ -65,8 +65,6 @@ class App:
         while True:
             self.user = input("Username: ")
             password = input("Password: ")
-            #self.ip = input("IP address: ")
-            #self.port = int(input("Port: "))
             self.ip = IP
             self.port = PORT
 
@@ -228,6 +226,7 @@ class App:
         print("Logging out...\n")
 
         #TODO send message to server to log user out
+        self.client.logout()
 
         # Join thread
         if self.t.is_alive():

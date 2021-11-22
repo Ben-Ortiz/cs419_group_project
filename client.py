@@ -173,3 +173,13 @@ class Client:
 
 				for x in l:
 					print(f'{x}\n')
+
+			if(type == 'logout'):
+				break
+
+
+	def logout(self):
+
+		# Sends message to server to log user out
+		dict = {"type":"logout", "src":self.USERNAME, "dest":'server', "data":None, "is_encrypted":False}
+		support.send_message(dict, self.client_socket, HEADER_SIZE)
