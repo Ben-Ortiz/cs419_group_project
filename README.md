@@ -29,12 +29,23 @@ type "create"
 enter a username (example: alice)
 enter a password (example: alice)
 type "message"
+a prompt "Send to:" will show on the terminal
+enter bob
+a prompt "Enter your message." will show on the terminal
+type your message (example: hi)
+that message should show up on bob's terminal
+to see the conversation between alice and bob type "conversation"
+to logout type "logout"
 
 in the 1st client terminal type "python app.py"     
 type "create"
 enter a username (example: bob)
 enter a password (example: bob)
 type "message"
-
-   
-Now you can send messages from one to the other and the messages will appear in all terminals (server terminal, 1st client terminal and 2nd client terminal)
+a prompt "Send to:" will show on the terminal
+enter bob
+a prompt "Enter your message." will show on the terminal
+type your message (example: hi)
+that message should show up on alice's terminal
+to see the conversation between alice and bob type "conversation"
+to logout type "logout"
