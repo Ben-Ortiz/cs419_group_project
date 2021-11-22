@@ -24,27 +24,27 @@ open 3 terminals
 in the server terminal, type "python server.py 'YOUR IPv4 address' 8888" to start the server   
    
 in the 1st client terminal type "python app.py 'YOUR IPv4 address' 8888" to start the 1st client     
-type "create"
-enter a username (example: alice)
-enter a password (example: alice)
-type "message"
-a prompt "Send to:" will show on the terminal
-enter bob
-a prompt "Enter your message." will show on the terminal
-type your message (example: hi)
-that message should show up on bob's terminal
-to see the conversation between alice and bob type "conversation"
-to logout type "logout"
-
+type "create"   
+enter a username (example: alice)   
+enter a password (example: alice)   
+type "message"   
+a prompt "Send to:" will show on the terminal   
+enter bob   
+a prompt "Enter your message." will show on the terminal   
+type your message (example: hi)   
+that message should show up on bob's terminal   
+to see the conversation between alice and bob type "conversation"   
+to logout type "logout"   
+   
 in the 2nd client terminal type "python app.py 'YOUR IPv4 address' 8888" to start the 2nd client        
-type "create"
-enter a username (example: bob)
-enter a password (example: bob)
-type "message"
-a prompt "Send to:" will show on the terminal
-enter bob
-a prompt "Enter your message." will show on the terminal
-type your message (example: hi)
-that message should show up on alice's terminal
-to see the conversation between alice and bob type "conversation"
-to logout type "logout"
+type "create"   
+enter a username (example: bob)   
+enter a password (example: bob)   
+type "message"   
+a prompt "Send to:" will show on the terminal   
+enter bob   
+a prompt "Enter your message." will show on the terminal   
+type your message (example: hi)   
+that message should show up on alice's terminal   
+to see the conversation between alice and bob type "conversation"   
+to logout type "logout"   
