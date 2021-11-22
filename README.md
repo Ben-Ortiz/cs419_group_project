@@ -51,4 +51,4 @@ to logout type "logout"
 
 
 To use this from two different computers port forwarding has to be enabled for both computers.
-This may pose a security risk, so be warned. 
+This poses a security risk, be warned. 
