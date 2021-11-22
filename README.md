@@ -10,3 +10,31 @@ What we need to do (according to slides):
 - [ ] Final Report: Due final week of semester  
   
 Note: Code freeze and presentation will be announced after midterm report
+
+How to test this:   
+open 1 terminal in administrator mode and type 'ipconfig'   
+note your IPv4 address   
+use port 8888   
+   
+   
+open 3 terminals     
+1 terminal is for the server    
+1 terminal is for the 1st client    
+1 terminal is for the 2nd client    
+   
+in the server terminal, type "python server.py 'YOUR IPv4 address' 8888" to start the server   
+   
+in the 1st client terminal type "python app.py"     
+type "create"
+enter a username (example: alice)
+enter a password (example: alice)
+type "message"
+
+in the 1st client terminal type "python app.py"     
+type "create"
+enter a username (example: bob)
+enter a password (example: bob)
+type "message"
+
+   
+Now you can send messages from one to the other and the messages will appear in all terminals (server terminal, 1st client terminal and 2nd client terminal)
