@@ -50,5 +50,5 @@ to see the conversation between alice and bob type "conversation"
 to logout type "logout"   
 
 
-To use this from two different computers port forwarding has to be enabled for both computers.
+To use this from two different computers port forwarding has to be enabled for both computers.   
 This poses a security risk, be warned. 
