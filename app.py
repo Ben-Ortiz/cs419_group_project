@@ -70,6 +70,7 @@ class App:
             self.ip = IP
             self.port = PORT
 
+
             if not self.connect():
                 while(True):
                     retry = input("Try again? (y/n) ")
