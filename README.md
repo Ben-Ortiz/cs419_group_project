@@ -11,7 +11,7 @@ What we need to do (according to slides):
   
 Note: Code freeze and presentation will be announced after midterm report
 
-How to test this:   
+# How to test this   
 open 1 terminal in administrator mode and type 'ipconfig'   
 note your IPv4 address   
 use port 8888   
