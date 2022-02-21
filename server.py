@@ -68,11 +68,14 @@ if __name__ == "__main__":
                     accounts.to_csv("data/accounts.csv", index = False)
                     #accounts.to_csv("data/accounts.csv", sep='\t', encoding='utf-8')
 
+                    accounts = pd.read_csv("data/accounts.csv")
+                    key = accounts['key'].loc[(accounts['username'] == user)]
+
                     connections[client_socket] = user
                     active_clients[user] = client_socket
 
                     print(f"Accepted new connection from {client_address[0]}:{client_address[1]} username {user}")
-                    success = {"type":"account_creation", "src":"server", "dest":"user", "data":key, "is_encrypted":False}
+                    success = {"type":"account_creation", "src":"server", "dest":"user", "data":int(key.item()), "is_encrypted":False}
                     packet = support.package_message(success, HEADER_SIZE)
                     client_socket.send(packet)
 

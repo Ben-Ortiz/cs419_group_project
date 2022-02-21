@@ -239,12 +239,32 @@ def decrypt(m, k, insert_chars):
 
 def main():
 
-    #this will test the encryption / decryption 
+    #this will test the encryption / decryption
     if DEBUG_VIG == 1:
-        key = np.random.randint(0, high = (2**64) - 1, dtype='uint64')
-        key = key.item()
+        
+        key = gen_key()
 
-        m = gen_rand_msg(1)
+        m = "hello alice"
+        ct = encrypt(m, key, True)
+        pt = decrypt(ct, key, True)
+
+        print(f'| Message: {m} |\n| Ciphertext: {ct} |\n| Plaintext: {pt} |')
+
+        print(f'| Key: {key} |')
+
+        print('\n')
+
+        m = "hello alice"
+        ct = encrypt(m, key, True)
+        pt = decrypt(ct, key, True)
+
+        print(f'| Message: {m} |\n| Ciphertext: {ct} |\n| Plaintext: {pt} |')
+
+        print(f'| Key: {key} |')
+
+        print('\n')
+
+        m = "hello alice from Bob"
         ct = encrypt(m, key, True)
         pt = decrypt(ct, key, True)
 
@@ -298,6 +318,7 @@ def main():
                 m = gen_rand_msg(i)
                 key = gen_key()
                 ct = encrypt(m, key, True)
+                print(len(ct))
                 pt = decrypt(ct, key, True)
                 if m == pt:
                     succeses += 1
@@ -311,6 +332,8 @@ def main():
 
             print(f"Done with messages of length: {i}")
             print(f'| Successes: {total_succeses} | Errors: {total_errors} |')
+
+            
 
         
 
