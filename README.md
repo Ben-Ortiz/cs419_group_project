@@ -5,13 +5,13 @@
 What we need to do (according to slides):  
 - [x] Project Topic: Due 9/23/2021 11:59pm  
 - [x] Midterm Report: Due 10/28/2021 11:59pm    
-- [ ] Code Freeze: Due 11/21/2021    
+- [x] Code Freeze: Due 11/21/2021    
 - [ ] Presentation: Due last few weeks  
 - [ ] Final Report: Due final week of semester  
   
 Note: Code freeze and presentation will be announced after midterm report
 
-How to test this:   
+# How to test this   
 open 1 terminal in administrator mode and type 'ipconfig'   
 note your IPv4 address   
 use port 8888   
@@ -42,7 +42,7 @@ enter a username (example: bob)
 enter a password (example: bob)   
 type "message"   
 a prompt "Send to:" will show on the terminal   
-enter bob   
+enter "alice" 
 a prompt "Enter your message." will show on the terminal   
 type your message (example: hi)   
 that message should show up on alice's terminal   
